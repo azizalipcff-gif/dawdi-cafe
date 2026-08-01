@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { ScrollProgress } from "@/components/ScrollProgress";
-import { BackToTop } from "@/components/BackToTop";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { LoadingScreen } from "@/components/LoadingScreen";
+import { SiteChrome } from "@/components/SiteChrome";
+import { getSettings } from "@/lib/data";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
+import { getDir } from "@/lib/i18n/config";
 
 export const metadata: Metadata = {
   title: {
@@ -36,9 +36,16 @@ export const metadata: Metadata = {
   icons: { icon: "/logo/logo.png", apple: "/logo/logo.png" },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [settings, locale] = await Promise.all([getSettings(), getLocale()]);
+  const dict = getDictionary(locale);
+
+  const siteName = settings.cafe?.name ?? SITE_NAME;
+  const description = settings.seo?.description ?? SITE_DESCRIPTION;
+  const phone = settings.contact?.phone ?? "+212656480972";
+
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang={locale} dir={getDir(locale)} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -46,10 +53,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "CafeOrCoffeeShop",
-              name: SITE_NAME,
-              description: SITE_DESCRIPTION,
+              name: siteName,
+              description,
               url: SITE_URL,
-              telephone: "+212656480972",
+              telephone: phone,
               address: { "@type": "PostalAddress", addressCountry: "MA" },
               servesCuisine: ["Coffee", "Crêpes", "Snacks"],
               image: `${SITE_URL}/logo/logo.png`,
@@ -59,13 +66,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
         <Providers>
-          <LoadingScreen />
-          <ScrollProgress />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <BackToTop />
-          <WhatsAppButton />
+          <LocaleProvider locale={locale} dict={dict}>
+            <SiteChrome settings={settings}>{children}</SiteChrome>
+          </LocaleProvider>
         </Providers>
       </body>
     </html>

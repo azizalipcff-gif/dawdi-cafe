@@ -1,12 +1,36 @@
 "use client";
 
-import { Phone, MapPin, Clock, Instagram, ArrowUpRight, Heart } from "lucide-react";
+import { Phone, MapPin, Clock, Instagram, ArrowUpRight, Heart, Mail } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { SITE_NAME, NAV_ITEMS, PHONE, INSTAGRAM_URL, GOOGLE_MAPS_URL, ADDRESS, WORKING_HOURS } from "@/lib/constants";
+import {
+  PHONE, INSTAGRAM_URL, GOOGLE_MAPS_URL,
+  ADDRESS, DEFAULT_SETTINGS,
+} from "@/lib/constants";
+import type { SiteSettings } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/LocaleProvider";
+import { getNavItems } from "@/lib/i18n/dictionaries";
 
-export function Footer() {
+interface FooterProps {
+  settings?: Partial<SiteSettings>;
+}
+
+export function Footer({ settings }: FooterProps) {
   const year = new Date().getFullYear();
+  const { dict, link } = useI18n();
+  const navItems = getNavItems(dict);
+
+  const contact = { ...DEFAULT_SETTINGS.contact, ...settings?.contact };
+  const hours = { ...DEFAULT_SETTINGS.hours, ...settings?.hours };
+  const footer = { ...DEFAULT_SETTINGS.footer, ...settings?.footer };
+  const cafe = { ...DEFAULT_SETTINGS.cafe, ...settings?.cafe };
+  const logo = cafe.logo_url || "/logo/logo.png";
+
+  const phone = contact.phone || PHONE;
+  const instagram = contact.instagram || INSTAGRAM_URL;
+  const maps = contact.maps_url || GOOGLE_MAPS_URL;
+  const address = contact.address || ADDRESS;
+  const instagramHandle = instagram.split("/").filter(Boolean).pop() ?? "@cafe_dawdi";
 
   return (
     <footer className="relative bg-dark text-white overflow-hidden">
@@ -18,25 +42,25 @@ export function Footer() {
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <div className="relative w-10 h-10 shrink-0">
-                <Image src="/logo/logo.png" alt={SITE_NAME} fill className="object-contain" sizes="40px" />
+                <Image src={logo} alt={cafe.name} fill className="object-contain" sizes="40px" />
               </div>
               <div>
-                <span className="font-display text-xl font-bold text-white">{SITE_NAME}</span>
-                <span className="block font-mono text-[9px] text-brand tracking-[0.2em] uppercase">Coffee for the Road</span>
+                <span className="font-display text-xl font-bold text-white">{cafe.name}</span>
+                <span className="block font-mono text-[9px] text-brand tracking-[0.2em] uppercase">{cafe.tagline}</span>
               </div>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Premium coffee, crêpes, snacks and quality drinks. Fresh, fast, and friendly service in Morocco.
+              {footer.about}
             </p>
           </div>
 
           <div>
-            <h3 className="font-display text-base font-semibold text-white mb-5 tracking-wide">Quick Links</h3>
+            <h3 className="font-display text-base font-semibold text-white mb-5 tracking-wide">{dict.footer.quickLinks}</h3>
             <ul className="space-y-3">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.href}>
                   <Link
-                    href={item.href}
+                    href={link(item.href)}
                     className="flex items-center gap-1 text-sm text-gray-400 hover:text-brand transition-colors group"
                   >
                     {item.label}
@@ -48,44 +72,52 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-display text-base font-semibold text-white mb-5 tracking-wide">Hours</h3>
+            <h3 className="font-display text-base font-semibold text-white mb-5 tracking-wide">{dict.footer.hours}</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-3 text-gray-400">
                 <Clock className="w-4 h-4 text-brand shrink-0" />
                 <div>
-                  <p className="text-white font-medium">Weekdays</p>
-                  <p>{WORKING_HOURS.weekdays}</p>
+                  <p className="text-white font-medium">{dict.footer.weekdays}</p>
+                  <p>{hours.weekdays}</p>
                 </div>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
                 <Clock className="w-4 h-4 text-brand shrink-0" />
                 <div>
-                  <p className="text-white font-medium">Weekends</p>
-                  <p>{WORKING_HOURS.weekends}</p>
+                  <p className="text-white font-medium">{dict.footer.weekends}</p>
+                  <p>{hours.weekends}</p>
                 </div>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-display text-base font-semibold text-white mb-5 tracking-wide">Contact</h3>
+            <h3 className="font-display text-base font-semibold text-white mb-5 tracking-wide">{dict.footer.contact}</h3>
             <ul className="space-y-3">
               <li>
-                <a href={`tel:${PHONE.replace(/\s/g, "")}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
+                <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
                   <Phone className="w-4 h-4 text-brand shrink-0" />
-                  {PHONE}
+                  {phone}
                 </a>
               </li>
+              {contact.email && (
+                <li>
+                  <a href={`mailto:${contact.email}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
+                    <Mail className="w-4 h-4 text-brand shrink-0" />
+                    {contact.email}
+                  </a>
+                </li>
+              )}
               <li>
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
+                <a href={instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
                   <Instagram className="w-4 h-4 text-brand shrink-0" />
-                  @cafe_dawdi
+                  @{instagramHandle}
                 </a>
               </li>
               <li>
-                <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
+                <a href={maps} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
                   <MapPin className="w-4 h-4 text-brand shrink-0" />
-                  {ADDRESS}
+                  {address}
                 </a>
               </li>
             </ul>
@@ -94,10 +126,10 @@ export function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8">
           <p className="text-sm text-gray-500">
-            &copy; {year} {SITE_NAME}. All rights reserved.
+            {footer.copyright.replace("{year}", String(year)) || `© ${year} ${cafe.name}. ${dict.footer.rights}`}
           </p>
           <p className="text-sm text-gray-500 flex items-center gap-1">
-            Designed with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" /> by DAWDI CAFE
+            {dict.footer.designedWith} <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" /> {cafe.name}
           </p>
         </div>
       </div>

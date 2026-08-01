@@ -2,16 +2,12 @@
 
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import { useEffect, useState } from "react";
+import { CartProvider } from "@/components/CartProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      {mounted && children}
-      {!mounted && <div className="min-h-screen bg-background" />}
+      <CartProvider>{children}</CartProvider>
       <Toaster
         position="bottom-right"
         toastOptions={{
