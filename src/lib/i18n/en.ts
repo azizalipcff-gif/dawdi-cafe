@@ -239,7 +239,6 @@ const en = {
       forgot: "Forgot password?",
       signIn: "Sign In",
       signingIn: "Signing in...",
-      google: "Continue with Google",
       or: "or",
       backToWebsite: "Back to website",
       accessDenied: "Access denied. Administrator account required.",

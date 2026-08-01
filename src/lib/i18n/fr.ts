@@ -239,7 +239,6 @@ const fr = {
       forgot: "Mot de passe oublié ?",
       signIn: "Se Connecter",
       signingIn: "Connexion...",
-      google: "Continuer avec Google",
       or: "ou",
       backToWebsite: "Retour au site",
       accessDenied: "Accès refusé. Un compte administrateur est requis.",

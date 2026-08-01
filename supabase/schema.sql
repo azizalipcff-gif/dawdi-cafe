@@ -585,30 +585,22 @@ on conflict (slug) do nothing;
 -- ============================================================
 -- INITIAL SUPER ADMIN SEED
 -- ------------------------------------------------------------
--- IMPORTANT: Change the default email / password below and run
--- this ONCE. Afterwards, delete this section.
+-- The only administrator account. The auth user must be created
+-- manually in Supabase Auth (Email / Password) — no password is
+-- stored in this file. Run this ONCE after creating that user.
 -- ============================================================
 do $$
 declare
   v_user_id uuid;
-  v_email text := 'admin@dawdicafe.com';
-  v_password text := 'Dawdi@2024!';
+  v_email text := 'azizaliyt2ff@gmail.com';
 begin
   select id into v_user_id from auth.users where email = v_email;
 
   if v_user_id is null then
-    v_user_id := (
-      select supabase_auth_admin.create_user(
-        jsonb_build_object(
-          'email', v_email,
-          'password', v_password,
-          'email_confirm', true
-        )
-      )
-    );
+    raise notice 'Auth user % does not exist yet. Create it in Supabase Auth (Email / Password), then re-run this seed.', v_email;
+  else
+    insert into public.admins (user_id, role)
+    values (v_user_id, 'super_admin')
+    on conflict (user_id) do update set role = 'super_admin';
   end if;
-
-  insert into public.admins (user_id, role)
-  values (v_user_id, 'super_admin')
-  on conflict (user_id) do update set role = 'super_admin';
 end $$;

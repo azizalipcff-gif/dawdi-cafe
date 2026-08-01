@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { defaultLocale, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n/config";
-import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_RESET_PATH, ADMIN_CALLBACK_PATH } from "@/lib/constants";
+import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_RESET_PATH } from "@/lib/constants";
 
 // Routes under the admin path that do NOT require a session. The login and
 // reset-password pages must never be wrapped by the protected admin layout,
 // otherwise an unauthenticated visitor gets an infinite redirect loop.
-const PUBLIC_ADMIN_PATHS = [ADMIN_LOGIN_PATH, ADMIN_RESET_PATH, ADMIN_CALLBACK_PATH];
+const PUBLIC_ADMIN_PATHS = [ADMIN_LOGIN_PATH, ADMIN_RESET_PATH];
 
 const LOCALE_PREFIXES: Locale[] = ["en", "fr", "ar"];
 

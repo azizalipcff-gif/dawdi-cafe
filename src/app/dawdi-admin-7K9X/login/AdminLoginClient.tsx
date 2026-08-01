@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Lock, Mail, AlertCircle, CheckCircle2 } from "lucide-react";
-import { loginAdmin, signInWithGoogle, type LoginState } from "@/lib/actions/auth";
+import { loginAdmin, type LoginState } from "@/lib/actions/auth";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -26,47 +26,6 @@ function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: st
       <Lock className="w-4 h-4" />
       {pending ? pendingLabel : label}
     </Button>
-  );
-}
-
-function GoogleButton() {
-  const { dict } = useI18n();
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  function handleClick() {
-    setError(null);
-    startTransition(async () => {
-      const res = await signInWithGoogle();
-      if (res.url) {
-        window.location.href = res.url;
-      } else {
-        setError(res.error ?? dict.admin.login.noAdminAccess);
-      }
-    });
-  }
-
-  return (
-    <div className="space-y-2">
-      <Button
-        type="button"
-        variant="outline"
-        disabled={pending}
-        onClick={handleClick}
-        className="w-full gap-2 bg-white/5 border-white/10 text-white hover:bg-white/10"
-      >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81Z" />
-        </svg>
-        {pending ? dict.common.loading : dict.admin.login.google}
-      </Button>
-      {error && (
-        <p className="flex items-center gap-1.5 text-sm text-red-400" role="alert">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          {error}
-        </p>
-      )}
-    </div>
   );
 }
 
@@ -182,15 +141,6 @@ export function AdminLoginClient({ next, reset, denied }: AdminLoginClientProps)
           </div>
 
           <SubmitButton label={t.signIn} pendingLabel={t.signingIn} />
-
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-x-0 border-t border-white/10" />
-            <span className="relative bg-[#111827] px-3 text-xs uppercase tracking-wider text-gray-500">
-              {t.or}
-            </span>
-          </div>
-
-          <GoogleButton />
 
           <Link
             href="/"

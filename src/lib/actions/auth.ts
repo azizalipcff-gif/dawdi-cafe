@@ -7,32 +7,11 @@ import { createClient, AUTH_REMEMBER_COOKIE, AUTH_SESSION_MAX_AGE } from "@/lib/
 import { loginSchema, resetPasswordSchema, updatePasswordSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCurrentAdmin } from "@/lib/auth";
-import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_CALLBACK_PATH, ADMIN_RESET_PATH } from "@/lib/constants";
+import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_RESET_PATH } from "@/lib/constants";
 
 export type LoginState = { error?: string; retryAfter?: number };
 
 export type ResetState = { error?: string; success?: boolean };
-
-// Starts the Supabase Google OAuth flow. The returned URL sends the visitor
-// to Google; on success they land on the admin callback where the session is
-// exchanged and the admins-table check runs.
-export async function signInWithGoogle(): Promise<{ url?: string; error?: string }> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${siteUrl}${ADMIN_CALLBACK_PATH}`,
-    },
-  });
-
-  if (error || !data.url) {
-    console.error("signInWithGoogle failed:", error?.message);
-    return { error: "Unable to start Google sign-in. Please try again." };
-  }
-
-  return { url: data.url };
-}
 
 export async function loginAdmin(prevState: LoginState, formData: FormData): Promise<LoginState> {
   const parsed = loginSchema.safeParse({
@@ -74,12 +53,13 @@ export async function loginAdmin(prevState: LoginState, formData: FormData): Pro
     ...(remember ? { maxAge: AUTH_SESSION_MAX_AGE } : {}),
   });
 
-  // An authenticated Supabase user is not enough: the account must also have
-  // an entry in the admins table. Non-admins are signed straight back out.
+  // An authenticated Supabase user is not enough: the account must also exist
+  // in the admins table with the super_admin role. Anyone else is signed
+  // straight back out and shown the denial banner.
   const admin = await getCurrentAdmin();
-  if (!admin) {
+  if (!admin || admin.role !== "super_admin") {
     await supabase.auth.signOut();
-    return { error: "This account does not have admin access" };
+    redirect(`${ADMIN_LOGIN_PATH}?denied=1`);
   }
 
   // Honor the ?next= target set by the proxy, but only for internal admin
