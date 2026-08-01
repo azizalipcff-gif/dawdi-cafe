@@ -4,8 +4,8 @@ import { defaultLocale, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n/
 import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_RESET_PATH } from "@/lib/constants";
 
 // Routes under the admin path that do NOT require a session. The login and
-// reset-password pages must never be wrapped by the protected admin layout,
-// otherwise an unauthenticated visitor gets an infinite redirect loop.
+// reset pages must never be wrapped by the protected admin layout, otherwise
+// an unauthenticated visitor gets an infinite redirect loop.
 const PUBLIC_ADMIN_PATHS = [ADMIN_LOGIN_PATH, ADMIN_RESET_PATH];
 
 const LOCALE_PREFIXES: Locale[] = ["en", "fr", "ar"];

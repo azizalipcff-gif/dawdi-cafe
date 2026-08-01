@@ -92,7 +92,7 @@ function RequestForm() {
           <Input
             type="email"
             name="email"
-            placeholder="admin@dawdicafe.com"
+            placeholder="azizaliyt2ff@gmail.com"
             autoComplete="email"
             required
             className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:ring-brand"

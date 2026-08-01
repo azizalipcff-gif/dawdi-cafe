@@ -9,7 +9,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 // derive their paths from this constant.
 export const ADMIN_PATH = "/dawdi-admin-7K9X";
 export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
-export const ADMIN_RESET_PATH = `${ADMIN_PATH}/reset-password`;
+export const ADMIN_RESET_PATH = `${ADMIN_PATH}/reset`;
 
 // Defaults — overridden by the `settings` table once Supabase is connected.
 export const DEFAULT_SETTINGS = {
