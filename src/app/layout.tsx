@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { SiteChrome } from "@/components/SiteChrome";
@@ -46,9 +47,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} dir={getDir(locale)} suppressHydrationWarning>
-      <head>
-        <script
+      <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
+        <Script
+          id="organization-jsonld"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -63,8 +66,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             }),
           }}
         />
-      </head>
-      <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
         <Providers>
           <LocaleProvider locale={locale} dict={dict}>
             <SiteChrome settings={settings}>{children}</SiteChrome>

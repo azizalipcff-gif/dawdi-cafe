@@ -22,7 +22,7 @@ export const getCurrentAdmin = cache(async (): Promise<Admin | null> => {
   const supabase = await createClient();
   const { data: admin } = await supabase
     .from("admins")
-    .select("*, profiles(full_name)")
+    .select("*")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -30,8 +30,6 @@ export const getCurrentAdmin = cache(async (): Promise<Admin | null> => {
 
   // Suspended admins are treated as non-admins until reactivated.
   if (admin.is_suspended) return null;
-
-  const profile = admin.profiles as unknown as { full_name: string | null } | null;
 
   return {
     id: admin.id,
@@ -42,7 +40,7 @@ export const getCurrentAdmin = cache(async (): Promise<Admin | null> => {
     created_at: admin.created_at,
     updated_at: admin.updated_at,
     email: user.email ?? undefined,
-    full_name: profile?.full_name ?? user.user_metadata?.full_name ?? null,
+    full_name: user.user_metadata?.full_name ?? null,
   };
 });
 
@@ -71,13 +69,12 @@ export async function getAdminByUserId(userId: string): Promise<Admin | null> {
   const admin = await createAdminClient();
   const { data } = await admin
     .from("admins")
-    .select("*, profiles(full_name)")
+    .select("*")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (!data) return null;
 
-  const profile = data.profiles as unknown as { full_name: string | null } | null;
   return {
     id: data.id,
     user_id: data.user_id,
@@ -86,15 +83,13 @@ export async function getAdminByUserId(userId: string): Promise<Admin | null> {
     permissions: data.permissions,
     created_at: data.created_at,
     updated_at: data.updated_at,
-    full_name: profile?.full_name ?? null,
+    full_name: null,
   };
 }
 
 export async function listAdminUsers(): Promise<Admin[]> {
   const admin = await createAdminClient();
-  const { data } = await admin
-    .from("admins")
-    .select("*, profiles(full_name)");
+  const { data } = await admin.from("admins").select("*");
 
   return (data ?? []).map((a) => ({
     id: a.id,
@@ -105,6 +100,6 @@ export async function listAdminUsers(): Promise<Admin[]> {
     created_at: a.created_at,
     updated_at: a.updated_at,
     email: a.email as string | undefined,
-    full_name: (a.profiles as unknown as { full_name: string | null } | null)?.full_name ?? null,
+    full_name: null,
   }));
 }
