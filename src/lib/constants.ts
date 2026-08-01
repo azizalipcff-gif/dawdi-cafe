@@ -4,6 +4,14 @@ export const SITE_DESCRIPTION =
   "Premium coffee, crêpes, snacks and quality drinks in Morocco.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+// The admin panel lives under this single, non-obvious route segment.
+// The public site never links to it; the middleware, auth guards and OAuth
+// callback all derive their paths from this constant.
+export const ADMIN_PATH = "/dawdi-admin-7K9X";
+export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
+export const ADMIN_RESET_PATH = `${ADMIN_PATH}/reset-password`;
+export const ADMIN_CALLBACK_PATH = `${ADMIN_PATH}/callback`;
+
 // Defaults — overridden by the `settings` table once Supabase is connected.
 export const DEFAULT_SETTINGS = {
   cafe: {

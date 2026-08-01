@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentAdmin } from "@/lib/auth";
+import { ADMIN_PATH } from "@/lib/constants";
 import { AdminLoginClient } from "./AdminLoginClient";
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default async function AdminLoginPage({
   // (A signed-in non-admin just sees the form — they are rejected server-side
   // on submit, never bounced, so there is no redirect loop.)
   const admin = await getCurrentAdmin();
-  if (admin) redirect("/admin");
+  if (admin) redirect(ADMIN_PATH);
 
   return <AdminLoginClient next={next} reset={reset === "1"} denied={denied === "1"} />;
 }

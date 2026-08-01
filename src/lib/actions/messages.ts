@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { messageSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
+import { ADMIN_PATH } from "@/lib/constants";
 
 // Public: send a contact message
 export async function createMessage(formData: FormData) {
@@ -36,8 +37,8 @@ export async function toggleMessageRead(id: string, isRead: boolean) {
   const { error } = await supabase.from("messages").update({ is_read: isRead }).eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/messages", "layout");
-  revalidatePath("/admin", "layout");
+  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }
 
@@ -52,8 +53,8 @@ export async function toggleMessageReplied(id: string, replied: boolean) {
     .eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/messages", "layout");
-  revalidatePath("/admin", "layout");
+  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }
 
@@ -65,8 +66,8 @@ export async function toggleMessageArchived(id: string, archived: boolean) {
   const { error } = await supabase.from("messages").update({ is_archived: archived }).eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/messages", "layout");
-  revalidatePath("/admin", "layout");
+  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }
 
@@ -78,7 +79,7 @@ export async function deleteMessage(id: string) {
   const { error } = await supabase.from("messages").delete().eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/messages", "layout");
-  revalidatePath("/admin", "layout");
+  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }

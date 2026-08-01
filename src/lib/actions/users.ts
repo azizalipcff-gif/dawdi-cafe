@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { adminUserSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
+import { ADMIN_PATH } from "@/lib/constants";
 
 // Super Admin only: invite a new admin user
 export async function createAdminUser(formData: FormData) {
@@ -47,7 +48,7 @@ export async function createAdminUser(formData: FormData) {
   );
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/users", "layout");
+  revalidatePath(`${ADMIN_PATH}/users`, "layout");
   return { success: true };
 }
 
@@ -63,7 +64,7 @@ export async function updateAdminRole(userId: string, role: string) {
   const { error } = await admin.from("admins").update({ role }).eq("user_id", userId);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/users", "layout");
+  revalidatePath(`${ADMIN_PATH}/users`, "layout");
   return { success: true };
 }
 
@@ -75,7 +76,7 @@ export async function toggleAdminSuspended(userId: string, suspended: boolean) {
   const { error } = await admin.from("admins").update({ is_suspended: suspended }).eq("user_id", userId);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/users", "layout");
+  revalidatePath(`${ADMIN_PATH}/users`, "layout");
   return { success: true };
 }
 
@@ -87,7 +88,7 @@ export async function deleteAdminUser(userId: string) {
   const { error } = await admin.from("admins").delete().eq("user_id", userId);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/users", "layout");
+  revalidatePath(`${ADMIN_PATH}/users`, "layout");
   return { success: true };
 }
 

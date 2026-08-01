@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { ADMIN_PATH, ADMIN_LOGIN_PATH } from "@/lib/constants";
 import type { Admin, AdminRole } from "@/lib/types";
 
 // Current authenticated user (cached per request)
@@ -46,12 +47,12 @@ export const getCurrentAdmin = cache(async (): Promise<Admin | null> => {
 });
 
 // Throws a redirect when there is no valid admin session.
-// - Logged out            → /admin/login
+// - Logged out            → admin login page
 // - Logged in, not admin  → / (public homepage). Redirecting a signed-in
-//   non-admin back to /admin/login used to create an infinite redirect loop.
+//   non-admin back to the admin login used to create an infinite redirect loop.
 export async function requireAdmin(): Promise<Admin> {
   const user = await getCurrentUser();
-  if (!user) redirect("/admin/login");
+  if (!user) redirect(ADMIN_LOGIN_PATH);
 
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/");
@@ -61,7 +62,7 @@ export async function requireAdmin(): Promise<Admin> {
 // Verifies the admin holds at least one of the allowed roles
 export async function requireRole(roles: AdminRole[]): Promise<Admin> {
   const admin = await requireAdmin();
-  if (!roles.includes(admin.role)) redirect("/admin");
+  if (!roles.includes(admin.role)) redirect(ADMIN_PATH);
   return admin;
 }
 

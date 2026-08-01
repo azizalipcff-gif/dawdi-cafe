@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { orderSchema, orderStatusSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
+import { ADMIN_PATH } from "@/lib/constants";
 import type { OrderStatus, OrderItem } from "@/lib/types";
 
 // Public: place an order from the cart
@@ -52,8 +53,8 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
     .eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/orders", "layout");
-  revalidatePath("/admin", "layout");
+  revalidatePath(`${ADMIN_PATH}/orders`, "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }
 
@@ -65,7 +66,7 @@ export async function deleteOrder(id: string) {
   const { error } = await supabase.from("orders").delete().eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/orders", "layout");
-  revalidatePath("/admin", "layout");
+  revalidatePath(`${ADMIN_PATH}/orders`, "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }

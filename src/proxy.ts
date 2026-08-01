@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { defaultLocale, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n/config";
+import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_RESET_PATH, ADMIN_CALLBACK_PATH } from "@/lib/constants";
 
-// Routes under /admin that do NOT require a session. The login and
+// Routes under the admin path that do NOT require a session. The login and
 // reset-password pages must never be wrapped by the protected admin layout,
 // otherwise an unauthenticated visitor gets an infinite redirect loop.
-const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/reset-password", "/admin/callback"];
+const PUBLIC_ADMIN_PATHS = [ADMIN_LOGIN_PATH, ADMIN_RESET_PATH, ADMIN_CALLBACK_PATH];
 
 const LOCALE_PREFIXES: Locale[] = ["en", "fr", "ar"];
 
@@ -21,7 +22,7 @@ export async function proxy(request: NextRequest) {
   // is kept in sync with the locale cookie so server components (root layout)
   // and server actions resolve the same language. Paths without a locale
   // prefix are redirected to the cookie-preferred (or default) locale.
-  if (!pathname.startsWith("/admin") && !pathname.startsWith("/api")) {
+  if (!pathname.startsWith(ADMIN_PATH) && !pathname.startsWith("/api")) {
     const hasLocalePrefix = LOCALE_PREFIXES.some(
       (p) => pathname === `/${p}` || pathname.startsWith(`/${p}/`)
     );
@@ -49,7 +50,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(target, 307);
   }
 
-  // Routes under /admin require a session — the public website stays open.
+  // Routes under the admin path require a session — the public website stays open.
   const isPublicPath = PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p));
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -98,15 +99,15 @@ export async function proxy(request: NextRequest) {
   const isLoggedIn = Boolean(user);
 
   // Public auth pages are always reachable — including for logged-in users.
-  // Bouncing a logged-in non-admin from /admin/login to /admin (and back)
-  // is exactly what caused the previous redirect loop. The login page itself
-  // redirects authenticated admins to the dashboard.
+  // Bouncing a logged-in non-admin from the login page to the dashboard (and
+  // back) is exactly what caused the previous redirect loop. The login page
+  // itself redirects authenticated admins to the dashboard.
   if (isPublicPath) {
     return NextResponse.next({ request });
   }
 
   if (!isLoggedIn) {
-    const redirectUrl = new URL("/admin/login", request.url);
+    const redirectUrl = new URL(ADMIN_LOGIN_PATH, request.url);
     redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }

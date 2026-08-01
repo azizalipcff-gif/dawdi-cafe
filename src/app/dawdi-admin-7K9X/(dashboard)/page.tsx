@@ -6,6 +6,7 @@ import {
 import { getDashboardStats, getLatestOrders, getLatestReservations, getMessages } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { ADMIN_PATH } from "@/lib/constants";
 
 export default async function AdminDashboardPage() {
   const [stats, orders, reservations, messages] = await Promise.all([
@@ -105,7 +106,7 @@ export default async function AdminDashboardPage() {
         <div className="p-5 rounded-xl bg-white dark:bg-dark border border-border">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-base font-semibold text-foreground">Recent Orders</h3>
-            <Link href="/admin/orders" className="flex items-center gap-1 text-xs text-brand hover:underline">
+            <Link href={`${ADMIN_PATH}/orders`} className="flex items-center gap-1 text-xs text-brand hover:underline">
               View all <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -136,7 +137,7 @@ export default async function AdminDashboardPage() {
           <div className="p-5 rounded-xl bg-white dark:bg-dark border border-border">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display text-base font-semibold text-foreground">Recent Reservations</h3>
-              <Link href="/admin/reservations" className="flex items-center gap-1 text-xs text-brand hover:underline">
+              <Link href={`${ADMIN_PATH}/reservations`} className="flex items-center gap-1 text-xs text-brand hover:underline">
                 View all <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -163,7 +164,7 @@ export default async function AdminDashboardPage() {
           <div className="p-5 rounded-xl bg-white dark:bg-dark border border-border">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display text-base font-semibold text-foreground">Unread Messages</h3>
-              <Link href="/admin/messages" className="flex items-center gap-1 text-xs text-brand hover:underline">
+              <Link href={`${ADMIN_PATH}/messages`} className="flex items-center gap-1 text-xs text-brand hover:underline">
                 View all <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -185,7 +186,7 @@ export default async function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link
-          href="/admin/products"
+          href={`${ADMIN_PATH}/products`}
           className="flex items-center gap-4 p-5 rounded-xl bg-white dark:bg-dark border border-border hover:border-brand/30 transition-colors group"
         >
           <div className="w-11 h-11 rounded-xl bg-brand/10 text-brand flex items-center justify-center">
@@ -198,7 +199,7 @@ export default async function AdminDashboardPage() {
           <ChevronRight className="w-4 h-4 text-muted group-hover:text-brand" />
         </Link>
         <Link
-          href="/admin/categories"
+          href={`${ADMIN_PATH}/categories`}
           className="flex items-center gap-4 p-5 rounded-xl bg-white dark:bg-dark border border-border hover:border-brand/30 transition-colors group"
         >
           <div className="w-11 h-11 rounded-xl bg-brand/10 text-brand flex items-center justify-center">

@@ -7,13 +7,14 @@ import { createClient, AUTH_REMEMBER_COOKIE, AUTH_SESSION_MAX_AGE } from "@/lib/
 import { loginSchema, resetPasswordSchema, updatePasswordSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCurrentAdmin } from "@/lib/auth";
+import { ADMIN_PATH, ADMIN_LOGIN_PATH, ADMIN_CALLBACK_PATH, ADMIN_RESET_PATH } from "@/lib/constants";
 
 export type LoginState = { error?: string; retryAfter?: number };
 
 export type ResetState = { error?: string; success?: boolean };
 
 // Starts the Supabase Google OAuth flow. The returned URL sends the visitor
-// to Google; on success they land on /admin/callback where the session is
+// to Google; on success they land on the admin callback where the session is
 // exchanged and the admins-table check runs.
 export async function signInWithGoogle(): Promise<{ url?: string; error?: string }> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -21,7 +22,7 @@ export async function signInWithGoogle(): Promise<{ url?: string; error?: string
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${siteUrl}/admin/callback`,
+      redirectTo: `${siteUrl}${ADMIN_CALLBACK_PATH}`,
     },
   });
 
@@ -81,15 +82,15 @@ export async function loginAdmin(prevState: LoginState, formData: FormData): Pro
     return { error: "This account does not have admin access" };
   }
 
-  // Honor the ?next= target set by the proxy, but only for internal /admin
+  // Honor the ?next= target set by the proxy, but only for internal admin
   // URLs (never allow open redirects).
   const next = formData.get("next");
   const target =
-    typeof next === "string" && next.startsWith("/admin") && !next.startsWith("//")
+    typeof next === "string" && next.startsWith(ADMIN_PATH) && !next.startsWith("//")
       ? next
-      : "/admin";
+      : ADMIN_PATH;
 
-  revalidatePath("/admin", "layout");
+  revalidatePath(ADMIN_PATH, "layout");
   redirect(target);
 }
 
@@ -106,7 +107,7 @@ export async function requestPasswordReset(
   const supabase = await createClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${siteUrl}/admin/reset-password`,
+    redirectTo: `${siteUrl}${ADMIN_RESET_PATH}`,
   });
 
   if (error) {
@@ -134,13 +135,13 @@ export async function updatePassword(
     return { error: "Unable to update your password. Please try again." };
   }
 
-  revalidatePath("/admin", "layout");
-  redirect("/admin/login?reset=1");
+  revalidatePath(ADMIN_PATH, "layout");
+  redirect(`${ADMIN_LOGIN_PATH}?reset=1`);
 }
 
 export async function logoutAdmin() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  revalidatePath("/admin", "layout");
-  redirect("/admin/login");
+  revalidatePath(ADMIN_PATH, "layout");
+  redirect(ADMIN_LOGIN_PATH);
 }

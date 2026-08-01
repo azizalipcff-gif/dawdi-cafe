@@ -10,6 +10,7 @@ import { requestPasswordReset, updatePassword, type ResetState } from "@/lib/act
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ADMIN_LOGIN_PATH } from "@/lib/constants";
 import { SITE_NAME } from "@/lib/constants";
 
 interface ResetPasswordClientProps {
@@ -102,7 +103,7 @@ function RequestForm() {
       <SubmitButton label={t.sendLink} pendingLabel={t.sending} />
 
       <Link
-        href="/admin/login"
+        href={ADMIN_LOGIN_PATH}
         className="flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-brand transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
@@ -170,7 +171,7 @@ function UpdateForm() {
       <SubmitButton label={t.updatePassword} pendingLabel={t.updating} />
 
       <Link
-        href="/admin/login"
+        href={ADMIN_LOGIN_PATH}
         className="flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-brand transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />

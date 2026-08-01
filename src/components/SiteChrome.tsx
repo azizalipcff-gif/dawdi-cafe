@@ -7,6 +7,7 @@ import { WhatsAppButton } from "./WhatsAppButton";
 import { BackToTop } from "./BackToTop";
 import { ScrollProgress } from "./ScrollProgress";
 import { LoadingScreen } from "./LoadingScreen";
+import { ADMIN_PATH } from "@/lib/constants";
 import type { SiteSettings } from "@/lib/types";
 
 // Renders the full public site chrome around the page content:
@@ -20,7 +21,7 @@ export function SiteChrome({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname.startsWith(ADMIN_PATH);
 
   if (isAdmin) return <>{children}</>;
 

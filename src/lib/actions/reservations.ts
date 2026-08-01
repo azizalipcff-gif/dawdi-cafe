@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { reservationSchema, reservationStatusSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
+import { ADMIN_PATH } from "@/lib/constants";
 import type { ReservationStatus } from "@/lib/types";
 
 // Public: create a reservation
@@ -42,7 +43,7 @@ export async function updateReservationStatus(id: string, status: ReservationSta
     .eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/reservations", "layout");
+  revalidatePath(`${ADMIN_PATH}/reservations`, "layout");
   return { success: true };
 }
 
@@ -54,6 +55,6 @@ export async function deleteReservation(id: string) {
   const { error } = await supabase.from("reservations").delete().eq("id", id);
   if (error) return { error: error.message };
 
-  revalidatePath("/admin/reservations", "layout");
+  revalidatePath(`${ADMIN_PATH}/reservations`, "layout");
   return { success: true };
 }

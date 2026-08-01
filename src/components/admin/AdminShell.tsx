@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AdminRole } from "@/lib/types";
+import { ADMIN_PATH } from "@/lib/constants";
 import { logoutAdmin } from "@/lib/actions/auth";
 
 interface SidebarItem {
@@ -20,17 +21,17 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: "Orders", href: "/admin/orders", icon: <ShoppingBag className="w-5 h-5" /> },
-  { label: "Products", href: "/admin/products", icon: <Package className="w-5 h-5" /> },
-  { label: "Categories", href: "/admin/categories", icon: <FolderTree className="w-5 h-5" /> },
-  { label: "Hero Slides", href: "/admin/hero-slides", icon: <Presentation className="w-5 h-5" /> },
-  { label: "Gallery", href: "/admin/gallery", icon: <ImageIcon className="w-5 h-5" /> },
-  { label: "Albums", href: "/admin/albums", icon: <FolderOpen className="w-5 h-5" /> },
-  { label: "Reservations", href: "/admin/reservations", icon: <CalendarCheck className="w-5 h-5" /> },
-  { label: "Messages", href: "/admin/messages", icon: <MessageSquare className="w-5 h-5" /> },
-  { label: "Users", href: "/admin/users", icon: <Users className="w-5 h-5" />, roles: ["super_admin"] },
-  { label: "Settings", href: "/admin/settings", icon: <Settings className="w-5 h-5" />, roles: ["super_admin"] },
+  { label: "Dashboard", href: ADMIN_PATH, icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: "Orders", href: `${ADMIN_PATH}/orders`, icon: <ShoppingBag className="w-5 h-5" /> },
+  { label: "Products", href: `${ADMIN_PATH}/products`, icon: <Package className="w-5 h-5" /> },
+  { label: "Categories", href: `${ADMIN_PATH}/categories`, icon: <FolderTree className="w-5 h-5" /> },
+  { label: "Hero Slides", href: `${ADMIN_PATH}/hero-slides`, icon: <Presentation className="w-5 h-5" /> },
+  { label: "Gallery", href: `${ADMIN_PATH}/gallery`, icon: <ImageIcon className="w-5 h-5" /> },
+  { label: "Albums", href: `${ADMIN_PATH}/albums`, icon: <FolderOpen className="w-5 h-5" /> },
+  { label: "Reservations", href: `${ADMIN_PATH}/reservations`, icon: <CalendarCheck className="w-5 h-5" /> },
+  { label: "Messages", href: `${ADMIN_PATH}/messages`, icon: <MessageSquare className="w-5 h-5" /> },
+  { label: "Users", href: `${ADMIN_PATH}/users`, icon: <Users className="w-5 h-5" />, roles: ["super_admin"] },
+  { label: "Settings", href: `${ADMIN_PATH}/settings`, icon: <Settings className="w-5 h-5" />, roles: ["super_admin"] },
 ];
 
 interface AdminShellProps {
@@ -128,7 +129,7 @@ function AdminSidebar({
         className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark border-r border-border transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto"
       >
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-2">
+          <Link href={ADMIN_PATH} className="flex items-center gap-2">
             <div className="relative w-8 h-8 shrink-0">
               <Image src="/logo/logo.png" alt="DAWDI CAFE" fill className="object-contain" sizes="32px" />
             </div>
@@ -144,7 +145,7 @@ function AdminSidebar({
         </div>
         <nav className="p-3 space-y-1">
           {items.map((item) => {
-            const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+            const active = item.href === ADMIN_PATH ? pathname === ADMIN_PATH : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
