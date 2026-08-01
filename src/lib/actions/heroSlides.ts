@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { heroSlideSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { uploadImage, deleteImage } from "@/lib/storage";
@@ -54,7 +54,7 @@ export async function createHeroSlide(formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("hero_slides").insert({
     ...parsed.data,
     subtitle: parsed.data.subtitle || null,
@@ -93,7 +93,7 @@ export async function updateHeroSlide(id: string, formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("hero_slides")
     .update({
@@ -113,7 +113,7 @@ export async function updateHeroSlide(id: string, formData: FormData) {
 export async function deleteHeroSlide(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: existing } = await supabase.from("hero_slides").select("image_url").eq("id", id).maybeSingle();
   if (existing?.image_url) {
     await deleteImage(existing.image_url).catch(() => {});

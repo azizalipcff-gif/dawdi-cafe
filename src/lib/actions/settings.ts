@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { settingsSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 
@@ -51,7 +51,7 @@ export async function updateSettings(formData: FormData) {
     return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const sections = Object.entries(parsed.data) as [
     keyof typeof parsed.data,
     Record<string, unknown>

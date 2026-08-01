@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, FolderTree,
-  Image as ImageIcon, CalendarCheck, MessageSquare, Users,
+  Image as ImageIcon, CalendarCheck, MessageSquare,
   Settings, LogOut, Menu as MenuIcon, X, Home, Presentation, FolderOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,6 @@ interface SidebarItem {
   label: string;
   href: string;
   icon: React.ReactNode;
-  roles?: AdminRole[];
 }
 
 const sidebarItems: SidebarItem[] = [
@@ -30,8 +29,7 @@ const sidebarItems: SidebarItem[] = [
   { label: "Albums", href: `${ADMIN_PATH}/albums`, icon: <FolderOpen className="w-5 h-5" /> },
   { label: "Reservations", href: `${ADMIN_PATH}/reservations`, icon: <CalendarCheck className="w-5 h-5" /> },
   { label: "Messages", href: `${ADMIN_PATH}/messages`, icon: <MessageSquare className="w-5 h-5" /> },
-  { label: "Users", href: `${ADMIN_PATH}/users`, icon: <Users className="w-5 h-5" />, roles: ["super_admin"] },
-  { label: "Settings", href: `${ADMIN_PATH}/settings`, icon: <Settings className="w-5 h-5" />, roles: ["super_admin"] },
+  { label: "Settings", href: `${ADMIN_PATH}/settings`, icon: <Settings className="w-5 h-5" /> },
 ];
 
 interface AdminShellProps {
@@ -42,14 +40,11 @@ interface AdminShellProps {
 
 export function AdminShell({ adminRole, adminName, children }: AdminShellProps) {
   const pathname = usePathname();
-  const visibleItems = sidebarItems.filter(
-    (item) => !item.roles || item.roles.includes(adminRole)
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark flex">
       <AdminSidebar
-        items={visibleItems}
+        items={sidebarItems}
         adminName={adminName}
         pathname={pathname}
         adminRole={adminRole}

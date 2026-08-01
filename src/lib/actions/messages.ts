@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { messageSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { ADMIN_PATH } from "@/lib/constants";
@@ -33,7 +34,7 @@ export async function createMessage(formData: FormData) {
 export async function toggleMessageRead(id: string, isRead: boolean) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("messages").update({ is_read: isRead }).eq("id", id);
   if (error) return { error: error.message };
 
@@ -46,7 +47,7 @@ export async function toggleMessageRead(id: string, isRead: boolean) {
 export async function toggleMessageReplied(id: string, replied: boolean) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("messages")
     .update({ is_replied: replied, is_read: replied ? true : undefined })
@@ -62,7 +63,7 @@ export async function toggleMessageReplied(id: string, replied: boolean) {
 export async function toggleMessageArchived(id: string, archived: boolean) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("messages").update({ is_archived: archived }).eq("id", id);
   if (error) return { error: error.message };
 
@@ -75,7 +76,7 @@ export async function toggleMessageArchived(id: string, archived: boolean) {
 export async function deleteMessage(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("messages").delete().eq("id", id);
   if (error) return { error: error.message };
 

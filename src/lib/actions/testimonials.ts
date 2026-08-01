@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { testimonialSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 
@@ -19,7 +19,7 @@ export async function createTestimonial(formData: FormData) {
 
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("testimonials").insert({
     ...parsed.data,
     role: parsed.data.role || null,
@@ -44,7 +44,7 @@ export async function updateTestimonial(id: string, formData: FormData) {
 
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("testimonials")
     .update({ ...parsed.data, role: parsed.data.role || null })
@@ -58,7 +58,7 @@ export async function updateTestimonial(id: string, formData: FormData) {
 export async function deleteTestimonial(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("testimonials").delete().eq("id", id);
   if (error) return { error: error.message };
 

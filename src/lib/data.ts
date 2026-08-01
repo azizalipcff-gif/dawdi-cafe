@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { defaultLocale, type Locale } from "@/lib/i18n/config";
 import type {
   Category,
@@ -175,7 +176,7 @@ export async function getAlbums(
 // ---------- Admin queries ----------
 
 export async function getDashboardStats() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
@@ -226,7 +227,7 @@ export async function getDashboardStats() {
 }
 
 export async function getLatestOrders(limit = 6): Promise<Order[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("orders")
     .select("*")
@@ -236,7 +237,7 @@ export async function getLatestOrders(limit = 6): Promise<Order[]> {
 }
 
 export async function getLatestReservations(limit = 6): Promise<Reservation[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("reservations")
     .select("*")
@@ -246,7 +247,7 @@ export async function getLatestReservations(limit = 6): Promise<Reservation[]> {
 }
 
 export async function getMessages(unreadOnly = false): Promise<Message[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   let query = supabase.from("messages").select("*").order("created_at", { ascending: false });
   if (unreadOnly) query = query.eq("is_read", false);
   const { data } = await query;
@@ -254,13 +255,13 @@ export async function getMessages(unreadOnly = false): Promise<Message[]> {
 }
 
 export async function getAllOrders(): Promise<Order[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
   return (data ?? []) as Order[];
 }
 
 export async function getAllReservations(): Promise<Reservation[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase.from("reservations").select("*").order("created_at", { ascending: false });
   return (data ?? []) as Reservation[];
 }

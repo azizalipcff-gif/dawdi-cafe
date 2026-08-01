@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { albumSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { uploadImage, deleteImage } from "@/lib/storage";
@@ -63,7 +63,7 @@ export async function createAlbum(formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("albums").insert({
     ...parsed.data,
     description: parsed.data.description || null,
@@ -101,7 +101,7 @@ export async function updateAlbum(id: string, formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("albums")
     .update({
@@ -121,7 +121,7 @@ export async function updateAlbum(id: string, formData: FormData) {
 export async function deleteAlbum(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: existing } = await supabase.from("albums").select("cover_url").eq("id", id).maybeSingle();
   if (existing?.cover_url) {
     await deleteImage(existing.cover_url).catch(() => {});

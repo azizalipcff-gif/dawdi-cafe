@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { gallerySchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { uploadImage, deleteImage } from "@/lib/storage";
@@ -53,7 +53,7 @@ export async function createGalleryItem(formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("gallery").insert({
     ...parsed.data,
     title: parsed.data.title || null,
@@ -92,7 +92,7 @@ export async function updateGalleryItem(id: string, formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("gallery")
     .update({
@@ -113,7 +113,7 @@ export async function updateGalleryItem(id: string, formData: FormData) {
 export async function deleteGalleryItem(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: existing } = await supabase.from("gallery").select("image_url").eq("id", id).maybeSingle();
   if (existing?.image_url) {
     await deleteImage(existing.image_url).catch(() => {});

@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 const BUCKET = "media";
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 8 * 1024 * 1024; // 8MB
 
 export async function ensureBucket() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: buckets } = await supabase.storage.listBuckets();
   if (!buckets?.some((b) => b.name === BUCKET)) {
     await supabase.storage.createBucket(BUCKET, { public: true });
@@ -20,7 +20,7 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
     throw new Error("Image too large. Max size is 8MB.");
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   await ensureBucket();
 
   const ext = file.name.split(".").pop() ?? "jpg";
@@ -37,7 +37,7 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
 }
 
 export async function deleteImage(publicUrl: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const url = new URL(publicUrl);
   const parts = url.pathname.split("/");
   const path = parts.slice(parts.indexOf(BUCKET) + 1).join("/");
@@ -46,7 +46,7 @@ export async function deleteImage(publicUrl: string) {
 }
 
 export async function getImageUrlFromPath(path: string): Promise<string> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { productSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { uploadImage, deleteImage } from "@/lib/storage";
@@ -63,7 +63,7 @@ export async function createProduct(formData: FormData) {
     Object.assign(translations, rawTranslations);
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("products").insert({
     name: parsed.data.name,
     description: parsed.data.description || null,
@@ -127,7 +127,7 @@ export async function updateProduct(id: string, formData: FormData) {
     Object.assign(translations, rawTranslations);
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("products")
     .update({
@@ -155,7 +155,7 @@ export async function updateProduct(id: string, formData: FormData) {
 export async function deleteProduct(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: existing } = await supabase.from("products").select("image_url").eq("id", id).maybeSingle();
   if (existing?.image_url) {
@@ -171,7 +171,7 @@ export async function deleteProduct(id: string) {
 
 export async function toggleProductAvailability(id: string, available: boolean) {
   await requireRole(["super_admin", "manager", "employee"]);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("products").update({ is_available: available }).eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/", "layout");
@@ -180,7 +180,7 @@ export async function toggleProductAvailability(id: string, available: boolean) 
 
 export async function toggleProductRecommended(id: string, recommended: boolean) {
   await requireRole(["super_admin", "manager"]);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("products")
     .update({ is_recommended: recommended })
@@ -193,7 +193,7 @@ export async function toggleProductRecommended(id: string, recommended: boolean)
 
 export async function setProductSortOrder(id: string, sortOrder: number) {
   await requireRole(["super_admin", "manager"]);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("products")
     .update({ sort_order: Math.max(0, Math.floor(sortOrder)) })
@@ -207,7 +207,7 @@ export async function setProductSortOrder(id: string, sortOrder: number) {
 export async function duplicateProduct(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: source, error: selectError } = await supabase
     .from("products")
     .select("*")

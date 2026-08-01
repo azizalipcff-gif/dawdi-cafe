@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { categorySchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { uploadImage, deleteImage } from "@/lib/storage";
@@ -63,7 +63,7 @@ export async function createCategory(formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("categories").insert({
     name: parsed.data.name,
     slug: parsed.data.slug,
@@ -104,7 +104,7 @@ export async function updateCategory(id: string, formData: FormData) {
 
   const translations = buildTranslations(formData);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("categories")
     .update({
@@ -127,7 +127,7 @@ export async function updateCategory(id: string, formData: FormData) {
 export async function deleteCategory(id: string) {
   await requireRole(["super_admin", "manager"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: existing } = await supabase.from("categories").select("image_url").eq("id", id).maybeSingle();
   if (existing?.image_url) {
     await deleteImage(existing.image_url).catch(() => {});

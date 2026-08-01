@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { reservationSchema, reservationStatusSchema } from "@/lib/validation";
 import { requireRole } from "@/lib/auth";
 import { ADMIN_PATH } from "@/lib/constants";
@@ -36,7 +37,7 @@ export async function updateReservationStatus(id: string, status: ReservationSta
   const parsed = reservationStatusSchema.safeParse({ status });
   if (!parsed.success) return { error: "Invalid status" };
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("reservations")
     .update({ status: parsed.data.status })
@@ -51,7 +52,7 @@ export async function updateReservationStatus(id: string, status: ReservationSta
 export async function deleteReservation(id: string) {
   await requireRole(["super_admin", "manager", "employee"]);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("reservations").delete().eq("id", id);
   if (error) return { error: error.message };
 

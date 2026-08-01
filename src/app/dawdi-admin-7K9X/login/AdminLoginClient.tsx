@@ -10,7 +10,6 @@ import { loginAdmin, type LoginState } from "@/lib/actions/auth";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ADMIN_RESET_PATH } from "@/lib/constants";
 import { SITE_NAME } from "@/lib/constants";
 
 interface AdminLoginClientProps {
@@ -132,12 +131,12 @@ export function AdminLoginClient({ next, reset, denied }: AdminLoginClientProps)
               />
               {t.remember}
             </label>
-            <Link
-              href={ADMIN_RESET_PATH}
-              className="text-sm text-brand hover:text-brand/80 transition-colors"
+            <span
+              className="text-sm text-brand/70 cursor-not-allowed select-none"
+              title="Contact the administrator to reset the password"
             >
               {t.forgot}
-            </Link>
+            </span>
           </div>
 
           <SubmitButton label={t.signIn} pendingLabel={t.signingIn} />

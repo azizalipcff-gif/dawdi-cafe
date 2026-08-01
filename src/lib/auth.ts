@@ -1,105 +1,45 @@
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { redirect } from "next/navigation";
+// Admin auth — a single signed session cookie. The credentials live in
+// ADMIN_EMAIL / ADMIN_PASSWORD and there is no users table, no Supabase auth,
+// no roles. The one admin account is always super_admin.
 import { cache } from "react";
-import { ADMIN_PATH, ADMIN_LOGIN_PATH } from "@/lib/constants";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { verifySession, SESSION_COOKIE } from "@/lib/session";
+import { ADMIN_LOGIN_PATH } from "@/lib/constants";
 import type { Admin, AdminRole } from "@/lib/types";
 
-// Current authenticated user (cached per request)
-export const getCurrentUser = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
-});
+export async function getSessionEmail(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return verifySession(cookieStore.get(SESSION_COOKIE)?.value);
+}
 
-// Current admin with role (verifies against the admins table)
+// Current admin (reads the signed session cookie). Returns null when logged out.
 export const getCurrentAdmin = cache(async (): Promise<Admin | null> => {
-  const user = await getCurrentUser();
-  if (!user) return null;
-
-  const supabase = await createClient();
-  const { data: admin } = await supabase
-    .from("admins")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (!admin) return null;
-
-  // Suspended admins are treated as non-admins until reactivated.
-  if (admin.is_suspended) return null;
+  const email = await getSessionEmail();
+  if (!email) return null;
 
   return {
-    id: admin.id,
-    user_id: admin.user_id,
-    role: admin.role as AdminRole,
-    is_suspended: admin.is_suspended,
-    permissions: admin.permissions,
-    created_at: admin.created_at,
-    updated_at: admin.updated_at,
-    email: user.email ?? undefined,
-    full_name: user.user_metadata?.full_name ?? null,
+    id: "",
+    user_id: "",
+    role: "super_admin" as AdminRole,
+    is_suspended: false,
+    permissions: null,
+    created_at: "",
+    updated_at: "",
+    email,
+    full_name: email,
   };
 });
 
-// Throws a redirect when there is no valid admin session.
-// - Logged out            → admin login page
-// - Logged in, not admin  → / (public homepage). Redirecting a signed-in
-//   non-admin back to the admin login used to create an infinite redirect loop.
+// Throws a redirect to the admin login page when there is no valid session.
 export async function requireAdmin(): Promise<Admin> {
-  const user = await getCurrentUser();
-  if (!user) redirect(ADMIN_LOGIN_PATH);
-
   const admin = await getCurrentAdmin();
-  if (!admin) redirect("/");
+  if (!admin) redirect(ADMIN_LOGIN_PATH);
   return admin;
 }
 
-// Verifies the admin holds at least one of the allowed roles
-export async function requireRole(roles: AdminRole[]): Promise<Admin> {
-  const admin = await requireAdmin();
-  if (!roles.includes(admin.role)) redirect(ADMIN_PATH);
-  return admin;
-}
-
-// Uses the service-role client to look up any admin (used by the settings/users pages)
-export async function getAdminByUserId(userId: string): Promise<Admin | null> {
-  const admin = await createAdminClient();
-  const { data } = await admin
-    .from("admins")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (!data) return null;
-
-  return {
-    id: data.id,
-    user_id: data.user_id,
-    role: data.role as AdminRole,
-    is_suspended: data.is_suspended,
-    permissions: data.permissions,
-    created_at: data.created_at,
-    updated_at: data.updated_at,
-    full_name: null,
-  };
-}
-
-export async function listAdminUsers(): Promise<Admin[]> {
-  const admin = await createAdminClient();
-  const { data } = await admin.from("admins").select("*");
-
-  return (data ?? []).map((a) => ({
-    id: a.id,
-    user_id: a.user_id,
-    role: a.role as AdminRole,
-    is_suspended: a.is_suspended,
-    permissions: a.permissions,
-    created_at: a.created_at,
-    updated_at: a.updated_at,
-    email: a.email as string | undefined,
-    full_name: null,
-  }));
+// Roles/permissions were removed — the single admin account has full access.
+export async function requireRole(_roles?: AdminRole[]): Promise<Admin> {
+  void _roles;
+  return requireAdmin();
 }
