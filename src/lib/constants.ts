@@ -4,9 +4,7 @@ export const SITE_DESCRIPTION =
   "Premium coffee, crêpes, snacks and quality drinks in Morocco.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-// The admin panel lives under this single, non-obvious route segment.
-// The public site never links to it; the middleware and auth guards all
-// derive their paths from this constant.
+// Admin panel route. All admin pages live under this path.
 export const ADMIN_PATH = "/dawdi-admin-7K9X";
 export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
 
@@ -64,9 +62,3 @@ export const INSTAGRAM_URL = DEFAULT_SETTINGS.contact.instagram;
 export const GOOGLE_MAPS_URL = DEFAULT_SETTINGS.contact.maps_url;
 export const ADDRESS = DEFAULT_SETTINGS.contact.address;
 export const WORKING_HOURS = DEFAULT_SETTINGS.hours;
-
-export const ADMIN_ROLE_LABELS = {
-  super_admin: "Super Admin",
-  manager: "Manager",
-  employee: "Employee",
-} as const;

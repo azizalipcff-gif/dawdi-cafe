@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { getProducts, getCategories } from "@/lib/data";
+import { getProducts, getCategories, getSettings } from "@/lib/data";
 import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { DEFAULT_SETTINGS } from "@/lib/constants";
 import { MenuPageClient } from "./MenuPageClient";
 
 export async function generateMetadata({
@@ -25,9 +26,19 @@ export default async function MenuPage({
 }) {
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : defaultLocale;
-  const [products, categories] = await Promise.all([
-    getProducts(true, locale),
+  const [products, categories, settings] = await Promise.all([
+    getProducts(false, locale),
     getCategories(true, locale),
+    getSettings(locale),
   ]);
-  return <MenuPageClient products={products} categories={categories} />;
+
+  const whatsappNumber = settings.contact?.whatsapp || DEFAULT_SETTINGS.contact.whatsapp;
+
+  return (
+    <MenuPageClient
+      products={products}
+      categories={categories}
+      whatsappNumber={whatsappNumber}
+    />
+  );
 }

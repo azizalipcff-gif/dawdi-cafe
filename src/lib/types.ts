@@ -1,32 +1,9 @@
 // Shared TypeScript types matching the Supabase schema
 
-export type AdminRole = "super_admin" | "manager" | "employee";
-
 // Optional per-language overrides stored in a `translations` jsonb column.
 // English lives in the base columns; fr/ar override them when present.
 export interface Translations {
   [field: string]: { en?: string; fr?: string; ar?: string } | null;
-}
-
-export interface Profile {
-  id: string;
-  full_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Admin {
-  id: string;
-  user_id: string;
-  role: AdminRole;
-  is_suspended?: boolean;
-  permissions?: Record<string, unknown> | null;
-  created_at: string;
-  updated_at: string;
-  email?: string;
-  full_name?: string | null;
 }
 
 export interface Category {

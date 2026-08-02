@@ -1,12 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { reservationSchema, reservationStatusSchema } from "@/lib/validation";
-import { requireRole } from "@/lib/auth";
-import { ADMIN_PATH } from "@/lib/constants";
-import type { ReservationStatus } from "@/lib/types";
+import { reservationSchema } from "@/lib/validation";
 
 // Public: create a reservation
 export async function createReservation(formData: FormData) {
@@ -27,35 +22,5 @@ export async function createReservation(formData: FormData) {
     notes: parsed.data.notes || null,
   });
   if (error) return { error: error.message };
-  return { success: true };
-}
-
-// Admin: update reservation status
-export async function updateReservationStatus(id: string, status: ReservationStatus) {
-  await requireRole(["super_admin", "manager", "employee"]);
-
-  const parsed = reservationStatusSchema.safeParse({ status });
-  if (!parsed.success) return { error: "Invalid status" };
-
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("reservations")
-    .update({ status: parsed.data.status })
-    .eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/reservations`, "layout");
-  return { success: true };
-}
-
-// Admin: delete reservation
-export async function deleteReservation(id: string) {
-  await requireRole(["super_admin", "manager", "employee"]);
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("reservations").delete().eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/reservations`, "layout");
   return { success: true };
 }

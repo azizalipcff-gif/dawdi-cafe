@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coffee, Search, Plus } from "lucide-react";
+import { Coffee, Search, Plus, MessageCircle } from "lucide-react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { Product, Category } from "@/lib/types";
@@ -14,9 +15,10 @@ import { fmt } from "@/lib/i18n/config";
 interface MenuPageClientProps {
   products: Product[];
   categories: Category[];
+  whatsappNumber: string;
 }
 
-export function MenuPageClient({ products, categories }: MenuPageClientProps) {
+export function MenuPageClient({ products, categories, whatsappNumber }: MenuPageClientProps) {
   const { addItem } = useCart();
   const { dict } = useI18n();
   const [search, setSearch] = useState("");
@@ -49,6 +51,14 @@ export function MenuPageClient({ products, categories }: MenuPageClientProps) {
         }]
       : []),
   ];
+
+  const buildWhatsAppHref = (item: Product) => {
+    const number = whatsappNumber.replace(/\D/g, "") || "212656480972";
+    const price = `${Number(item.price ?? 0).toFixed(2)}`;
+    const status = item.is_available ? dict.menuPage.available : dict.menuPage.notAvailable;
+    const message = fmt(dict.whatsapp.order, { name: item.name, price, status });
+    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  };
 
   return (
     <div className="pt-24 pb-20">
@@ -114,7 +124,7 @@ export function MenuPageClient({ products, categories }: MenuPageClientProps) {
                   )}
                   <div className="w-12 h-0.5 bg-brand mx-auto mt-3 rounded-full" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                   {items.map((item, i) => (
                     <motion.div
                       key={item.id}
@@ -122,26 +132,66 @@ export function MenuPageClient({ products, categories }: MenuPageClientProps) {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.05 }}
-                      className="group p-5 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 flex flex-col"
+                      className="group p-4 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 flex flex-col overflow-hidden"
                     >
+                      <div className="relative -mx-4 -mt-4 mb-3">
+                        <div className="relative aspect-[4/3] w-full">
+                          {item.image_url ? (
+                            <Image
+                              src={item.image_url}
+                              alt={item.name}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted/20 flex items-center justify-center">
+                              <Coffee className="w-10 h-10 text-muted/50" />
+                            </div>
+                          )}
+                          {!item.is_available && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                              <span className="bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full">
+                                {dict.menuPage.notAvailable}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <div className="flex items-start justify-between gap-4 flex-1">
                         <div className="flex-1">
                           <h3 className="font-display text-base font-semibold text-foreground">{item.name}</h3>
-                          <p className="text-sm text-muted mt-1 leading-relaxed">{item.description}</p>
+                          <p className="text-sm text-muted mt-1 leading-relaxed line-clamp-2">{item.description}</p>
                         </div>
                         <span className="text-brand font-semibold text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
                       </div>
-                      <div className="flex justify-end mt-3">
-                        <button
-                          onClick={() => {
-                            addItem(item);
-                            toast.success(fmt(dict.cart.added, { name: item.name }));
-                          }}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-brand opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand/10 px-3 py-1.5 rounded-full"
+                      <div className="flex items-center justify-end gap-2 mt-3">
+                        <a
+                          href={buildWhatsAppHref(item)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-disabled={!item.is_available}
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
+                            item.is_available
+                              ? "bg-green-600/10 text-green-600 hover:bg-green-600 hover:text-white"
+                              : "bg-muted/30 text-muted pointer-events-none opacity-50"
+                          }`}
                         >
-                          <Plus className="w-3.5 h-3.5" />
-                          {dict.common.addToCart}
-                        </button>
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          {dict.menuPage.orderOnWhatsApp}
+                        </a>
+                        {item.is_available && (
+                          <button
+                            onClick={() => {
+                              addItem(item);
+                              toast.success(fmt(dict.cart.added, { name: item.name }));
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand/10 px-3 py-1.5 rounded-full"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            {dict.common.addToCart}
+                          </button>
+                        )}
                       </div>
                     </motion.div>
                   ))}

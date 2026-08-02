@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, isLocale, LOCALE_COOKIE, type Locale } from "@/lib/i18n/config";
 import { ADMIN_PATH, ADMIN_LOGIN_PATH } from "@/lib/constants";
-import { verifySession, SESSION_COOKIE } from "@/lib/session";
 
-// The login page is the only admin route that does not require a session.
+// The admin login page does not require a session.
 const PUBLIC_ADMIN_PATHS = [ADMIN_LOGIN_PATH];
 
 const LOCALE_PREFIXES: Locale[] = ["en", "fr", "ar"];
@@ -11,6 +10,26 @@ const LOCALE_PREFIXES: Locale[] = ["en", "fr", "ar"];
 function getCookieLocale(request: NextRequest): Locale {
   const value = request.cookies.get(LOCALE_COOKIE)?.value;
   return isLocale(value) ? value : defaultLocale;
+}
+
+// Supabase persists the session in an `sb-<ref>-auth-token` cookie. The proxy
+// only checks that a signed-in session exists and is not expired; whether the
+// user is actually an admin is decided by the SQL `admins` table (requireAdmin).
+function hasAuthSession(request: NextRequest): boolean {
+  const token = Array.from(request.cookies.getAll()).find(
+    (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
+  )?.value;
+  if (!token) return false;
+
+  try {
+    const base64 = token.split(".")[1] ?? "";
+    const b64 = base64.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), "=");
+    const payload = JSON.parse(atob(padded)) as { exp?: number };
+    return typeof payload.exp === "number" && payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
 }
 
 export async function proxy(request: NextRequest) {
@@ -48,15 +67,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(target, 307);
   }
 
-  // Routes under the admin path require a valid signed session cookie.
+  // Routes under the admin path require a valid Supabase session.
   const isPublicPath = PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p));
+  if (isPublicPath) return NextResponse.next({ request });
 
-  if (isPublicPath) {
-    return NextResponse.next({ request });
-  }
-
-  const sessionEmail = verifySession(request.cookies.get(SESSION_COOKIE)?.value);
-  if (!sessionEmail) {
+  if (!hasAuthSession(request)) {
     const redirectUrl = new URL(ADMIN_LOGIN_PATH, request.url);
     redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);

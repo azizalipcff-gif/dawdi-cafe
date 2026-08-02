@@ -1,154 +1,114 @@
 "use client";
 
-import { useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
-import { Lock, Mail, AlertCircle, CheckCircle2 } from "lucide-react";
-import { loginAdmin, type LoginState } from "@/lib/actions/auth";
-import { useI18n } from "@/lib/i18n/LocaleProvider";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { SITE_NAME } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { ADMIN_PATH } from "@/lib/constants";
 
-interface AdminLoginClientProps {
-  next?: string;
-  reset?: boolean;
-  denied?: boolean;
-}
+export function AdminLoginClient() {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
-function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full gap-2">
-      <Lock className="w-4 h-4" />
-      {pending ? pendingLabel : label}
-    </Button>
-  );
-}
-
-export function AdminLoginClient({ next, reset, denied }: AdminLoginClientProps) {
-  const { dict } = useI18n();
-  const [state, setState] = useState<LoginState>({});
-  const t = dict.admin.login;
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    startTransition(async () => {
+      const form = new FormData(e.currentTarget);
+      const email = String(form.get("email") ?? "");
+      const password = String(form.get("password") ?? "");
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        console.error("Sign-in failed", error);
+        return;
+      }
+      router.push(ADMIN_PATH);
+      router.refresh();
+    });
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark relative overflow-hidden px-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand/10 via-transparent to-transparent" />
+    <main className="relative min-h-screen flex items-center justify-center bg-zinc-950 overflow-hidden p-6">
+      {/* Ambient glass background */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-brand/20 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-white/[0.02] blur-2xl" />
+      </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 w-full max-w-md"
+        className="w-full max-w-sm"
       >
-        <div className="text-center mb-8">
-          <div className="relative w-20 h-20 mx-auto mb-4">
-            <Image src="/logo/logo.png" alt={SITE_NAME} fill className="object-contain" sizes="80px" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-white">{t.title}</h1>
-          <p className="text-gray-400 mt-2 text-sm">{t.subtitle.replace("{name}", SITE_NAME)}</p>
-        </div>
-
-        <form
-          action={async (formData) => setState(await loginAdmin(state, formData))}
-          className="glass rounded-2xl p-8 space-y-5"
-        >
-          {reset && (
+        <div className="relative rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl shadow-2xl shadow-black/50 px-8 py-12">
+          <div className="flex flex-col items-center text-center">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-6"
             >
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              {t.resetBanner}
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/10 border border-white/10 p-1.5">
+                <Image
+                  src="/logo/logo.png"
+                  alt="DAWDI CAFE"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                  priority
+                />
+              </div>
             </motion.div>
-          )}
 
-          {denied && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="font-display text-2xl font-bold text-white tracking-tight"
             >
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {t.accessDenied}
-            </motion.div>
-          )}
+              Admin Panel
+            </motion.h1>
 
-          {state.error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+            <motion.form
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="mt-8 w-full space-y-4"
             >
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {state.error}
-            </motion.div>
-          )}
-
-          {next && <input type="hidden" name="next" value={next} />}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">{t.email}</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <Input
+              <input
                 type="email"
                 name="email"
-                placeholder="azizaliyt2ff@gmail.com"
-                autoComplete="email"
                 required
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:ring-brand"
+                autoComplete="email"
+                placeholder="Email"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder:text-zinc-500 outline-none focus:border-brand/60 transition-colors"
               />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">{t.password}</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <Input
+              <input
                 type="password"
                 name="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
                 required
-                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:ring-brand"
+                autoComplete="current-password"
+                placeholder="Password"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder:text-zinc-500 outline-none focus:border-brand/60 transition-colors"
               />
-            </div>
+              <button
+                type="submit"
+                disabled={pending}
+                className="group relative w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-3.5 text-[15px] font-medium text-zinc-800 shadow-lg shadow-black/30 transition-all duration-300 hover:shadow-xl hover:shadow-black/40 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
+              >
+                {pending ? "Signing in..." : "Sign in"}
+              </button>
+            </motion.form>
           </div>
-
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                name="remember"
-                value="on"
-                defaultChecked
-                className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand accent-brand"
-              />
-              {t.remember}
-            </label>
-            <span
-              className="text-sm text-brand/70 cursor-not-allowed select-none"
-              title="Contact the administrator to reset the password"
-            >
-              {t.forgot}
-            </span>
-          </div>
-
-          <SubmitButton label={t.signIn} pendingLabel={t.signingIn} />
-
-          <Link
-            href="/"
-            className="block text-center text-sm text-gray-400 hover:text-brand transition-colors"
-          >
-            ← {t.backToWebsite}
-          </Link>
-        </form>
+        </div>
       </motion.div>
-    </div>
+    </main>
   );
 }

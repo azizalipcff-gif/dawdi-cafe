@@ -12,7 +12,6 @@ import type { SiteSettings } from "@/lib/types";
 
 // Renders the full public site chrome around the page content:
 //   Navbar → <main>{children}</main> → Footer
-// Admin pages get no chrome (they render their own shell).
 export function SiteChrome({
   settings,
   children,
@@ -21,9 +20,9 @@ export function SiteChrome({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith(ADMIN_PATH);
 
-  if (isAdmin) return <>{children}</>;
+  // Admin pages are rendered standalone without the public site chrome.
+  if (pathname?.startsWith(ADMIN_PATH)) return <>{children}</>;
 
   return (
     <>

@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { defaultLocale, type Locale } from "@/lib/i18n/config";
 import type {
   Category,
@@ -7,9 +6,6 @@ import type {
   GalleryItem,
   Testimonial,
   SiteSettings,
-  Order,
-  Reservation,
-  Message,
   HeroSlide,
   Album,
   Translations,
@@ -64,8 +60,7 @@ export async function getCategories(
 export async function getProducts(
   activeOnly = true,
   locale: Locale = defaultLocale
-): Promise<Product[]> {
-  const supabase = await createClient();
+): Promise<Product[]> {  const supabase = await createClient();
   let query = supabase
     .from("products")
     .select("*, category:categories(*)")
@@ -173,95 +168,3 @@ export async function getAlbums(
   }));
 }
 
-// ---------- Admin queries ----------
-
-export async function getDashboardStats() {
-  const supabase = createAdminClient();
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  const [
-    ordersRes,
-    messagesRes,
-    revenueRes,
-    productsRes,
-    categoriesRes,
-    galleryRes,
-    testimonialsRes,
-    ordersTodayRes,
-    reservationsTodayRes,
-  ] = await Promise.all([
-    supabase.from("orders").select("id, status, created_at"),
-    supabase.from("messages").select("id, is_read"),
-    supabase.from("orders").select("total, status"),
-    supabase.from("products").select("id"),
-    supabase.from("categories").select("id"),
-    supabase.from("gallery").select("id"),
-    supabase.from("testimonials").select("id"),
-    supabase.from("orders").select("id, created_at").gte("created_at", todayStart.toISOString()),
-    supabase.from("reservations").select("id, created_at").gte("created_at", todayStart.toISOString()),
-  ]);
-
-  const orders = ordersRes.data ?? [];
-  const messages = messagesRes.data ?? [];
-  const revenueOrders = revenueRes.data ?? [];
-
-  const todayOrders = ordersTodayRes.data?.length ?? 0;
-  const todayReservations = reservationsTodayRes.data?.length ?? 0;
-  const unreadMessages = messages.filter((m) => !m.is_read).length;
-  const revenue = revenueOrders
-    .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + Number(o.total ?? 0), 0);
-
-  return {
-    todayOrders,
-    todayReservations,
-    unreadMessages,
-    revenue,
-    totalOrders: orders.length,
-    totalProducts: productsRes.data?.length ?? 0,
-    totalCategories: categoriesRes.data?.length ?? 0,
-    totalGallery: galleryRes.data?.length ?? 0,
-    totalTestimonials: testimonialsRes.data?.length ?? 0,
-  };
-}
-
-export async function getLatestOrders(limit = 6): Promise<Order[]> {
-  const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  return (data ?? []) as Order[];
-}
-
-export async function getLatestReservations(limit = 6): Promise<Reservation[]> {
-  const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("reservations")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  return (data ?? []) as Reservation[];
-}
-
-export async function getMessages(unreadOnly = false): Promise<Message[]> {
-  const supabase = createAdminClient();
-  let query = supabase.from("messages").select("*").order("created_at", { ascending: false });
-  if (unreadOnly) query = query.eq("is_read", false);
-  const { data } = await query;
-  return (data ?? []) as Message[];
-}
-
-export async function getAllOrders(): Promise<Order[]> {
-  const supabase = createAdminClient();
-  const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-  return (data ?? []) as Order[];
-}
-
-export async function getAllReservations(): Promise<Reservation[]> {
-  const supabase = createAdminClient();
-  const { data } = await supabase.from("reservations").select("*").order("created_at", { ascending: false });
-  return (data ?? []) as Reservation[];
-}

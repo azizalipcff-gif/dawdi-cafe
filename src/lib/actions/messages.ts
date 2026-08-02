@@ -1,11 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { messageSchema } from "@/lib/validation";
-import { requireRole } from "@/lib/auth";
-import { ADMIN_PATH } from "@/lib/constants";
 
 // Public: send a contact message
 export async function createMessage(formData: FormData) {
@@ -27,60 +23,5 @@ export async function createMessage(formData: FormData) {
     is_read: false,
   });
   if (error) return { error: error.message };
-  return { success: true };
-}
-
-// Admin: toggle read status
-export async function toggleMessageRead(id: string, isRead: boolean) {
-  await requireRole(["super_admin", "manager"]);
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("messages").update({ is_read: isRead }).eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
-  revalidatePath(ADMIN_PATH, "layout");
-  return { success: true };
-}
-
-// Admin: toggle replied status
-export async function toggleMessageReplied(id: string, replied: boolean) {
-  await requireRole(["super_admin", "manager"]);
-
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("messages")
-    .update({ is_replied: replied, is_read: replied ? true : undefined })
-    .eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
-  revalidatePath(ADMIN_PATH, "layout");
-  return { success: true };
-}
-
-// Admin: toggle archive status
-export async function toggleMessageArchived(id: string, archived: boolean) {
-  await requireRole(["super_admin", "manager"]);
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("messages").update({ is_archived: archived }).eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
-  revalidatePath(ADMIN_PATH, "layout");
-  return { success: true };
-}
-
-// Admin: delete message
-export async function deleteMessage(id: string) {
-  await requireRole(["super_admin", "manager"]);
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("messages").delete().eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/messages`, "layout");
-  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }

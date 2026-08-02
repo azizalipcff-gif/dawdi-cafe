@@ -1,12 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { orderSchema, orderStatusSchema } from "@/lib/validation";
-import { requireRole } from "@/lib/auth";
-import { ADMIN_PATH } from "@/lib/constants";
-import type { OrderStatus, OrderItem } from "@/lib/types";
+import { orderSchema } from "@/lib/validation";
+import type { OrderItem } from "@/lib/types";
 
 // Public: place an order from the cart
 export async function createOrder(formData: FormData) {
@@ -37,37 +33,5 @@ export async function createOrder(formData: FormData) {
     status: "pending",
   });
   if (error) return { error: error.message };
-  return { success: true };
-}
-
-// Admin: update order status
-export async function updateOrderStatus(id: string, status: OrderStatus) {
-  await requireRole(["super_admin", "manager", "employee"]);
-
-  const parsed = orderStatusSchema.safeParse({ status });
-  if (!parsed.success) return { error: "Invalid status" };
-
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("orders")
-    .update({ status: parsed.data.status })
-    .eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/orders`, "layout");
-  revalidatePath(ADMIN_PATH, "layout");
-  return { success: true };
-}
-
-// Admin: delete order
-export async function deleteOrder(id: string) {
-  await requireRole(["super_admin", "manager", "employee"]);
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("orders").delete().eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath(`${ADMIN_PATH}/orders`, "layout");
-  revalidatePath(ADMIN_PATH, "layout");
   return { success: true };
 }
