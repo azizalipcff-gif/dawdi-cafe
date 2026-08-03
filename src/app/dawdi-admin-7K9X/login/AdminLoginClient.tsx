@@ -1,18 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import { AlertCircle, Coffee } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ADMIN_PATH } from "@/lib/constants";
 
 export function AdminLoginClient() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     startTransition(async () => {
       const form = new FormData(e.currentTarget);
       const email = String(form.get("email") ?? "");
@@ -23,7 +25,7 @@ export function AdminLoginClient() {
         password,
       });
       if (error) {
-        console.error("Sign-in failed", error);
+        setError(error.message);
         return;
       }
       router.push(ADMIN_PATH);
@@ -54,15 +56,8 @@ export function AdminLoginClient() {
               transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="mb-6"
             >
-              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/10 border border-white/10 p-1.5">
-                <Image
-                  src="/logo/logo.png"
-                  alt="DAWDI CAFE"
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-contain"
-                  priority
-                />
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/10 border border-white/10 flex items-center justify-center">
+                <Coffee className="w-8 h-8 text-brand" />
               </div>
             </motion.div>
 
@@ -74,6 +69,7 @@ export function AdminLoginClient() {
             >
               Admin Panel
             </motion.h1>
+            <p className="mt-1 text-sm text-zinc-500">Sign in to manage DAWDI CAFE</p>
 
             <motion.form
               onSubmit={handleSubmit}
@@ -98,10 +94,18 @@ export function AdminLoginClient() {
                 placeholder="Password"
                 className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder:text-zinc-500 outline-none focus:border-brand/60 transition-colors"
               />
+
+              {error && (
+                <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-left">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+                  <p className="text-sm text-red-300">{error}</p>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={pending}
-                className="group relative w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-3.5 text-[15px] font-medium text-zinc-800 shadow-lg shadow-black/30 transition-all duration-300 hover:shadow-xl hover:shadow-black/40 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
+                className="group relative w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-brand px-6 py-3.5 text-[15px] font-medium text-white shadow-lg shadow-brand/25 transition-all duration-300 hover:bg-brand-dark active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
               >
                 {pending ? "Signing in..." : "Sign in"}
               </button>

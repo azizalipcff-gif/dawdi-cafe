@@ -6,6 +6,8 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 
 // Admin panel route. All admin pages live under this path.
 export const ADMIN_PATH = "/dawdi-admin-7K9X";
+
+// Admin login page (excluded from the protected admin layout).
 export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
 
 // Defaults — overridden by the `settings` table once Supabase is connected.
