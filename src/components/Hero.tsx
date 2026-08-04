@@ -63,24 +63,6 @@ export function Hero({ settings, slides }: HeroProps) {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.6 }}
             >
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-display text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-none mb-5"
-              >
-                {active.title}
-              </motion.h1>
-              {active.subtitle && (
-                <motion.p
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.25 }}
-                  className="text-lg sm:text-xl text-gray-200 font-light tracking-wide mb-10 max-w-2xl mx-auto"
-                >
-                  {active.subtitle}
-                </motion.p>
-              )}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
