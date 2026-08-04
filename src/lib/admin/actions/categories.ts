@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Category } from "@/lib/types";
 import { revalidateAdmin } from "./shared";
 
@@ -14,7 +14,7 @@ export async function createCategory(
   input: CategoryInput
 ): Promise<{ error?: string; data?: Category }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase.from("categories").insert(input).select().single();
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -26,7 +26,7 @@ export async function updateCategory(
   patch: CategoryPatch
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("categories").update(patch).eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -35,7 +35,7 @@ export async function updateCategory(
 
 export async function deleteCategory(id: string): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();

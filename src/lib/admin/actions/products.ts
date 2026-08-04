@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Product } from "@/lib/types";
 import { revalidateAdmin } from "./shared";
 
@@ -28,7 +28,7 @@ export async function createProduct(
   input: ProductInput
 ): Promise<{ error?: string; data?: Product }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("products")
     .insert({
@@ -48,7 +48,7 @@ export async function updateProduct(
   patch: ProductPatch
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("products").update(patch).eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -57,7 +57,7 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();

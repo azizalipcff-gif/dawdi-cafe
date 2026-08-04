@@ -10,6 +10,11 @@ export const ADMIN_PATH = "/dawdi-admin-7K9X";
 // Admin login page (excluded from the protected admin layout).
 export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
 
+// Supabase Storage bucket used for all uploaded images (products, gallery,
+// hero, settings, etc.). Single source of truth — keep every storage.from()
+// call in sync with this name.
+export const STORAGE_BUCKET = "images";
+
 // Defaults — overridden by the `settings` table once Supabase is connected.
 export const DEFAULT_SETTINGS = {
   cafe: {

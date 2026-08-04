@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { OrderStatus } from "@/lib/types";
 import { revalidateAdmin } from "./shared";
 
@@ -10,7 +10,7 @@ export async function updateOrderStatus(
   status: OrderStatus
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("orders").update({ status }).eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -19,7 +19,7 @@ export async function updateOrderStatus(
 
 export async function deleteOrder(id: string): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("orders").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();

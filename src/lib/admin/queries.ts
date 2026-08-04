@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_SETTINGS } from "@/lib/constants";
 import type {
   Category,
@@ -80,8 +80,10 @@ function deriveCustomers(orders: Order[], profiles: { id: string; full_name: str
 }
 
 // Fetch every collection the admin panel needs in a single round-trip.
+// Runs behind requireAdmin(), so it uses the service-role client (RLS would
+// otherwise hide admin-only rows since auth.uid() is null in this app).
 export const getAdminData = cache(async (): Promise<AdminData> => {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [
     products,

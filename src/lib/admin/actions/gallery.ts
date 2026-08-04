@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { GalleryItem } from "@/lib/types";
 import { revalidateAdmin } from "./shared";
 
@@ -14,7 +14,7 @@ export async function createGalleryItem(
   input: GalleryInput
 ): Promise<{ error?: string; data?: GalleryItem }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase.from("gallery").insert(input).select().single();
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -26,7 +26,7 @@ export async function updateGalleryItem(
   patch: GalleryPatch
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("gallery").update(patch).eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -38,7 +38,7 @@ export async function reorderGallery(
   items: { id: string; sort_order: number }[]
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("gallery").upsert(
     items.map((item) => ({ id: item.id, sort_order: item.sort_order })),
     { onConflict: "id" }
@@ -50,7 +50,7 @@ export async function reorderGallery(
 
 export async function deleteGalleryItem(id: string): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("gallery").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();

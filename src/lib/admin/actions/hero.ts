@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { HeroSlide } from "@/lib/types";
 import { revalidateAdmin } from "./shared";
 
@@ -14,7 +14,7 @@ export async function createHeroSlide(
   input: HeroInput
 ): Promise<{ error?: string; data?: HeroSlide }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase.from("hero_slides").insert(input).select().single();
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -26,7 +26,7 @@ export async function updateHeroSlide(
   patch: HeroPatch
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("hero_slides").update(patch).eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();
@@ -37,7 +37,7 @@ export async function reorderHeroSlides(
   items: { id: string; sort_order: number }[]
 ): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("hero_slides").upsert(
     items.map((item) => ({ id: item.id, sort_order: item.sort_order })),
     { onConflict: "id" }
@@ -49,7 +49,7 @@ export async function reorderHeroSlides(
 
 export async function deleteHeroSlide(id: string): Promise<{ error?: string }> {
   await requireAdmin();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("hero_slides").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidateAdmin();
