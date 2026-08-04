@@ -76,10 +76,12 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own"
   on public.profiles for select
   using (auth.uid() = id or public.is_admin());
 
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own"
   on public.profiles for update
   using (auth.uid() = id or public.is_admin());
@@ -105,19 +107,23 @@ alter table public.admins add column if not exists permissions jsonb not null de
 alter table public.admins enable row level security;
 
 -- Only admins can read the admins table
+drop policy if exists "admins_select" on public.admins;
 create policy "admins_select"
   on public.admins for select
   using (public.is_admin());
 
 -- Only super admins can write the admins table
+drop policy if exists "admins_insert_super" on public.admins;
 create policy "admins_insert_super"
   on public.admins for insert
   with check (public.has_role(array['super_admin']));
 
+drop policy if exists "admins_update_super" on public.admins;
 create policy "admins_update_super"
   on public.admins for update
   using (public.has_role(array['super_admin']));
 
+drop policy if exists "admins_delete_super" on public.admins;
 create policy "admins_delete_super"
   on public.admins for delete
   using (public.has_role(array['super_admin']));
@@ -141,11 +147,13 @@ alter table public.settings add column if not exists value_ar jsonb not null def
 alter table public.settings enable row level security;
 
 -- Public can read settings (needed for the public site)
+drop policy if exists "settings_select_public" on public.settings;
 create policy "settings_select_public"
   on public.settings for select
   using (true);
 
 -- Only admins can write settings
+drop policy if exists "settings_write_admin" on public.settings;
 create policy "settings_write_admin"
   on public.settings for all
   using (public.is_admin())
@@ -172,10 +180,12 @@ alter table public.categories add column if not exists translations jsonb not nu
 
 alter table public.categories enable row level security;
 
+drop policy if exists "categories_select_public" on public.categories;
 create policy "categories_select_public"
   on public.categories for select
   using (true);
 
+drop policy if exists "categories_write_admin" on public.categories;
 create policy "categories_write_admin"
   on public.categories for all
   using (public.is_admin())
@@ -213,10 +223,12 @@ create index if not exists products_recommended_idx on public.products(is_recomm
 
 alter table public.products enable row level security;
 
+drop policy if exists "products_select_public" on public.products;
 create policy "products_select_public"
   on public.products for select
   using (true);
 
+drop policy if exists "products_write_admin" on public.products;
 create policy "products_write_admin"
   on public.products for all
   using (public.is_admin())
@@ -244,10 +256,12 @@ alter table public.gallery add column if not exists is_featured boolean not null
 
 alter table public.gallery enable row level security;
 
+drop policy if exists "gallery_select_public" on public.gallery;
 create policy "gallery_select_public"
   on public.gallery for select
   using (true);
 
+drop policy if exists "gallery_write_admin" on public.gallery;
 create policy "gallery_write_admin"
   on public.gallery for all
   using (public.is_admin())
@@ -273,19 +287,23 @@ create table if not exists public.reservations (
 alter table public.reservations enable row level security;
 
 -- Anyone can create a reservation
+drop policy if exists "reservations_insert_public" on public.reservations;
 create policy "reservations_insert_public"
   on public.reservations for insert
   with check (true);
 
 -- Only admins can read / update / delete reservations
+drop policy if exists "reservations_read_admin" on public.reservations;
 create policy "reservations_read_admin"
   on public.reservations for select
   using (public.is_admin());
 
+drop policy if exists "reservations_update_admin" on public.reservations;
 create policy "reservations_update_admin"
   on public.reservations for update
   using (public.is_admin());
 
+drop policy if exists "reservations_delete_admin" on public.reservations;
 create policy "reservations_delete_admin"
   on public.reservations for delete
   using (public.is_admin());
@@ -312,19 +330,23 @@ create index if not exists orders_created_at_idx on public.orders(created_at des
 alter table public.orders enable row level security;
 
 -- Anyone can place an order
+drop policy if exists "orders_insert_public" on public.orders;
 create policy "orders_insert_public"
   on public.orders for insert
   with check (true);
 
 -- Only admins can read / update / delete orders
+drop policy if exists "orders_read_admin" on public.orders;
 create policy "orders_read_admin"
   on public.orders for select
   using (public.is_admin());
 
+drop policy if exists "orders_update_admin" on public.orders;
 create policy "orders_update_admin"
   on public.orders for update
   using (public.is_admin());
 
+drop policy if exists "orders_delete_admin" on public.orders;
 create policy "orders_delete_admin"
   on public.orders for delete
   using (public.is_admin());
@@ -352,19 +374,23 @@ alter table public.messages add column if not exists is_archived boolean not nul
 alter table public.messages enable row level security;
 
 -- Anyone can send a message
+drop policy if exists "messages_insert_public" on public.messages;
 create policy "messages_insert_public"
   on public.messages for insert
   with check (true);
 
 -- Only admins can read / update / delete messages
+drop policy if exists "messages_read_admin" on public.messages;
 create policy "messages_read_admin"
   on public.messages for select
   using (public.is_admin());
 
+drop policy if exists "messages_update_admin" on public.messages;
 create policy "messages_update_admin"
   on public.messages for update
   using (public.is_admin());
 
+drop policy if exists "messages_delete_admin" on public.messages;
 create policy "messages_delete_admin"
   on public.messages for delete
   using (public.is_admin());
@@ -389,10 +415,12 @@ alter table public.testimonials add column if not exists translations jsonb not 
 
 alter table public.testimonials enable row level security;
 
+drop policy if exists "testimonials_select_public" on public.testimonials;
 create policy "testimonials_select_public"
   on public.testimonials for select
   using (true);
 
+drop policy if exists "testimonials_write_admin" on public.testimonials;
 create policy "testimonials_write_admin"
   on public.testimonials for all
   using (public.is_admin())
@@ -418,10 +446,12 @@ create table if not exists public.hero_slides (
 
 alter table public.hero_slides enable row level security;
 
+drop policy if exists "hero_slides_select_public" on public.hero_slides;
 create policy "hero_slides_select_public"
   on public.hero_slides for select
   using (true);
 
+drop policy if exists "hero_slides_write_admin" on public.hero_slides;
 create policy "hero_slides_write_admin"
   on public.hero_slides for all
   using (public.is_admin())
@@ -445,10 +475,12 @@ create table if not exists public.albums (
 
 alter table public.albums enable row level security;
 
+drop policy if exists "albums_select_public" on public.albums;
 create policy "albums_select_public"
   on public.albums for select
   using (true);
 
+drop policy if exists "albums_write_admin" on public.albums;
 create policy "albums_write_admin"
   on public.albums for all
   using (public.is_admin())
@@ -587,9 +619,14 @@ on conflict (slug) do nothing;
 -- ------------------------------------------------------------
 -- The only administrator account. The auth user must be created
 -- manually in Supabase Auth (Email / Password) — no password is
--- stored in this file. Run this ONCE after creating that user,
--- replacing <AUTH_USER_ID> with the id of the admin's auth user.
+-- stored in this file. Replace <AUTH_USER_ID> with the id of the
+-- admin's auth user; leaving the placeholder skips this seed.
 -- ============================================================
-insert into public.admins (user_id, role)
-values ('<AUTH_USER_ID>', 'super_admin')
-on conflict (user_id) do update set role = 'super_admin';
+do $$
+begin
+  if '<AUTH_USER_ID>' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
+    insert into public.admins (user_id, role)
+    values ('<AUTH_USER_ID>'::uuid, 'super_admin')
+    on conflict (user_id) do update set role = 'super_admin';
+  end if;
+end $$;
