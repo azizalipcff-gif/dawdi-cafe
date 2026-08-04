@@ -159,7 +159,7 @@ export function Hero({ settings, slides }: HeroProps) {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="mb-8"
         >
-          <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-4">
+          <div className="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-4">
             <Image
               src={logo}
               alt={siteName}
