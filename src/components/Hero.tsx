@@ -46,7 +46,7 @@ export function Hero({ settings, slides }: HeroProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-            className="absolute inset-0 m-auto h-[min(38vw,340px)] w-[min(38vw,340px)]"
+            className="absolute inset-x-0 top-[12%] m-auto h-[min(38vw,340px)] w-[min(38vw,340px)]"
           >
             <Image src={active.image_url} alt={active.title} fill className="object-contain" priority sizes="340px" />
           </motion.div>

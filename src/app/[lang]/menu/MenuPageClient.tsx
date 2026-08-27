@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { Product, Category } from "@/lib/types";
 import { useCart } from "@/components/CartProvider";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, buildWhatsAppHref } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { fmt } from "@/lib/i18n/config";
 
@@ -52,12 +52,11 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
       : []),
   ];
 
-  const buildWhatsAppHref = (item: Product) => {
-    const number = whatsappNumber.replace(/\D/g, "") || "212656480972";
+  const buildItemWhatsAppHref = (item: Product) => {
     const price = `${Number(item.price ?? 0).toFixed(2)}`;
     const status = item.is_available ? dict.menuPage.available : dict.menuPage.notAvailable;
     const message = fmt(dict.whatsapp.order, { name: item.name, price, status });
-    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+    return buildWhatsAppHref(whatsappNumber, message);
   };
 
   return (
@@ -167,7 +166,7 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
                       </div>
                       <div className="flex items-center justify-end gap-2 mt-3">
                         <a
-                          href={buildWhatsAppHref(item)}
+                          href={buildItemWhatsAppHref(item)}
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-disabled={!item.is_available}

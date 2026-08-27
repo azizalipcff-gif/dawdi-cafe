@@ -4,49 +4,64 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Coffee } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Coffee, MessageCircle } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createOrder } from "@/lib/actions/orders";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
+import { cn, formatCurrency, buildWhatsAppHref } from "@/lib/utils";
+import { SITE_NAME } from "@/lib/constants";
 
-export function CartPageClient() {
+type OrderType = "pickup" | "delivery";
+
+export function CartPageClient({ whatsappNumber }: { whatsappNumber: string }) {
   const { dict, link } = useI18n();
-  const { items, updateQuantity, removeItem, clearCart, total, count } = useCart();
+  const { items, updateQuantity, removeItem, total, count } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [orderType, setOrderType] = useState<OrderType>("pickup");
   const [submitting, setSubmitting] = useState(false);
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (items.length === 0) return;
+
+    const trimmedName = name.trim();
+    const trimmedPhone = phone.trim();
+    if (trimmedName.length < 2 || trimmedPhone.length < 7) {
+      toast.error(dict.errors.invalidInput);
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.set("customer_name", name);
-      formData.set("customer_phone", phone);
-      formData.set("notes", notes);
-      formData.set("total", String(total));
-      formData.set("items", JSON.stringify(items.map((i) => ({
-        product_id: i.product_id,
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity,
-      }))));
+      const orderTypeLabel = orderType === "delivery" ? dict.cart.delivery : dict.cart.pickup;
 
-      const result = await createOrder(formData);
-      if (result?.error) {
-        toast.error(result.error);
-      } else {
-        toast.success(dict.cart.success);
-        clearCart();
-        setName("");
-        setPhone("");
-        setNotes("");
-      }
+      const lines = items
+        .map((item, i) => {
+          const lineTotal = item.price * item.quantity;
+          return `${i + 1}. ${item.name}\n   ${item.quantity} × ${formatCurrency(item.price)} = ${formatCurrency(lineTotal)}`;
+        })
+        .join("\n\n");
+
+      const trimmedNotes = notes.trim();
+      const noteSection = trimmedNotes ? `\n\n📝 Note:\n${trimmedNotes}` : "";
+
+      const message =
+        `☕ New Order — ${SITE_NAME}\n\n` +
+        `👤 Customer: ${trimmedName}\n` +
+        `📞 Phone: ${trimmedPhone}\n\n` +
+        `📦 Order type: ${orderTypeLabel}\n\n` +
+        `🛒 Order:\n\n${lines}\n\n` +
+        `💰 Total: ${formatCurrency(total)}` +
+        noteSection;
+
+      const href = buildWhatsAppHref(whatsappNumber, message);
+      const opened = window.open(href, "_blank");
+      if (!opened) toast.error(dict.errors.generic);
     } finally {
       setSubmitting(false);
     }
@@ -100,7 +115,7 @@ export function CartPageClient() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{item.name}</p>
-                  <p className="text-sm text-muted font-mono">{item.price.toFixed(2)} MAD</p>
+                  <p className="text-sm text-muted font-mono">{formatCurrency(item.price)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -118,7 +133,7 @@ export function CartPageClient() {
                   </button>
                 </div>
                 <p className="w-20 text-right font-semibold text-foreground font-mono">
-                  {(item.price * item.quantity).toFixed(2)}
+                  {formatCurrency(item.price * item.quantity)}
                 </p>
                 <button
                   onClick={() => removeItem(item.product_id)}
@@ -150,19 +165,51 @@ export function CartPageClient() {
               <label className="text-sm font-medium text-foreground block mb-1.5">{dict.cart.notes}</label>
               <Textarea placeholder={dict.cart.notesPlaceholder} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium text-foreground block mb-1.5">{dict.cart.orderType}</legend>
+              <div className="grid grid-cols-2 gap-2">
+                {(["pickup", "delivery"] as const).map((type) => (
+                  <label
+                    key={type}
+                    className={cn(
+                      "cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-medium transition-colors",
+                      orderType === type
+                        ? "border-brand bg-brand/10 text-brand"
+                        : "border-border text-muted hover:border-brand/40"
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="orderType"
+                      value={type}
+                      checked={orderType === type}
+                      onChange={() => setOrderType(type)}
+                      className="sr-only"
+                    />
+                    {type === "delivery" ? dict.cart.delivery : dict.cart.pickup}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <div className="border-t border-border pt-4 space-y-2">
               <div className="flex justify-between text-sm text-muted">
                 <span>{dict.cart.items} ({count})</span>
-                <span className="font-mono">{total.toFixed(2)} MAD</span>
+                <span className="font-mono">{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between font-semibold text-foreground text-lg">
                 <span>{dict.cart.total}</span>
-                <span className="font-mono">{total.toFixed(2)} MAD</span>
+                <span className="font-mono">{formatCurrency(total)}</span>
               </div>
             </div>
             <Button type="submit" disabled={submitting} className="w-full gap-2">
-              {submitting ? dict.cart.placingOrder : dict.cart.placeOrder}
-              <ArrowRight className="w-4 h-4" />
+              {submitting ? (
+                dict.cart.openingWhatsApp
+              ) : (
+                <>
+                  <MessageCircle className="w-4 h-4" />
+                  {dict.cart.orderViaWhatsApp}
+                </>
+              )}
             </Button>
           </motion.form>
         </div>

@@ -2,22 +2,18 @@
 > dawdi-cafe@1.0.0 dev
 > next dev
 
+⚠ Port 3000 is in use by process 8532, using available port 3001 instead.
 ▲ Next.js 16.2.12 (Turbopack)
-- Local:         http://localhost:3000
-- Network:       http://192.168.1.4:3000
+- Local:         http://localhost:3001
+- Network:       http://192.168.1.4:3001
 - Environments: .env.local
-✓ Ready in 1430ms
-⚠ Slow filesystem detected. The benchmark took 363ms. If C:\Users\Admin\Desktop\set cafi\.next/dev is a network drive, consider moving it to a local folder.
-See more: https://nextjs.org/docs/app/guides/local-development
+✓ Ready in 1074ms
+⨯ Another next dev server is already running.
 
-○ Compiling /[lang] ...
- GET /en 200 in 9.5s (next.js: 7.6s, proxy.ts: 366ms, application-code: 1467ms)
- GET /fr 200 in 640ms (next.js: 28ms, proxy.ts: 14ms, application-code: 598ms)
- GET /ar 200 in 454ms (next.js: 16ms, proxy.ts: 10ms, application-code: 428ms)
- GET /en/menu 200 in 2.6s (next.js: 2.3s, proxy.ts: 9ms, application-code: 326ms)
- GET /fr/menu 200 in 393ms (next.js: 33ms, proxy.ts: 15ms, application-code: 345ms)
- GET /fr 200 in 575ms (next.js: 36ms, proxy.ts: 12ms, application-code: 527ms)
- GET /en 200 in 1648ms (next.js: 306ms, proxy.ts: 108ms, application-code: 1234ms)
- GET /fr 200 in 558ms (next.js: 28ms, proxy.ts: 13ms, application-code: 518ms)
- GET /en/menu 200 in 892ms (next.js: 249ms, proxy.ts: 8ms, application-code: 635ms)
- GET /ar 200 in 836ms (next.js: 27ms, proxy.ts: 9ms, application-code: 801ms)
+- Local:        http://localhost:3000
+- PID:          8532
+- Dir:          C:\Users\Admin\Desktop\set cafi
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 8532 /F to stop it.
+[?25h

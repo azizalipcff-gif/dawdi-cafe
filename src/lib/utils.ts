@@ -9,6 +9,14 @@ export function formatCurrency(amount: number): string {
   return `${Number(amount || 0).toFixed(2)} MAD`;
 }
 
+export function normalizePhone(raw: string): string {
+  return raw.replace(/\D/g, "");
+}
+
+export function buildWhatsAppHref(phone: string, message: string): string {
+  return `https://wa.me/${normalizePhone(phone)}?text=${encodeURIComponent(message)}`;
+}
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
