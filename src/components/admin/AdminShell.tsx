@@ -13,6 +13,9 @@ import {
   Home,
   Coffee,
   LogOut,
+  CalendarClock,
+  MessageSquare,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/admin/actions/auth";
@@ -22,6 +25,9 @@ const NAV_ITEMS = [
   { href: "/dawdi-admin-7K9X/products", label: "Products", icon: Package, exact: false },
   { href: "/dawdi-admin-7K9X/categories", label: "Categories", icon: Tags, exact: false },
   { href: "/dawdi-admin-7K9X/orders", label: "Orders", icon: ShoppingCart, exact: false },
+  { href: "/dawdi-admin-7K9X/reservations", label: "Reservations", icon: CalendarClock, exact: false },
+  { href: "/dawdi-admin-7K9X/messages", label: "Messages", icon: MessageSquare, exact: false },
+  { href: "/dawdi-admin-7K9X/testimonials", label: "Testimonials", icon: Star, exact: false },
   { href: "/dawdi-admin-7K9X/gallery", label: "Gallery", icon: Images, exact: false },
   { href: "/dawdi-admin-7K9X/homepage", label: "Homepage", icon: Home, exact: false },
   { href: "/dawdi-admin-7K9X/customers", label: "Customers", icon: Users, exact: false },
