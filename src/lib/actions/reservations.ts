@@ -2,9 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { reservationSchema } from "@/lib/validation";
+import { getClientIp, rateLimitPublic, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 // Public: create a reservation
 export async function createReservation(formData: FormData) {
+  const rl = await rateLimitPublic(await getClientIp(), "reservation");
+  if (!rl.success) return { error: RATE_LIMIT_MESSAGE };
+
   const parsed = reservationSchema.safeParse({
     name: formData.get("name"),
     phone: formData.get("phone"),

@@ -34,7 +34,7 @@ security definer
 set search_path = public
 stable
 as $$
-  select role from public.admins where user_id = auth.uid() limit 1;
+  select role from public.admins where user_id = auth.uid() and not is_suspended limit 1;
 $$;
 
 -- Is the authenticated user an admin at all?
@@ -45,7 +45,7 @@ security definer
 set search_path = public
 stable
 as $$
-  select exists (select 1 from public.admins where user_id = auth.uid());
+  select exists (select 1 from public.admins where user_id = auth.uid() and not is_suspended);
 $$;
 
 -- Does the authenticated user hold one of the allowed roles?
@@ -58,7 +58,7 @@ stable
 as $$
   select exists (
     select 1 from public.admins
-    where user_id = auth.uid() and role = any(allowed_roles)
+    where user_id = auth.uid() and role = any(allowed_roles) and not is_suspended
   );
 $$;
 
@@ -290,7 +290,7 @@ alter table public.reservations enable row level security;
 drop policy if exists "reservations_insert_public" on public.reservations;
 create policy "reservations_insert_public"
   on public.reservations for insert
-  with check (true);
+  with check (status = 'pending' or status is null);
 
 -- Only admins can read / update / delete reservations
 drop policy if exists "reservations_read_admin" on public.reservations;
@@ -333,7 +333,7 @@ alter table public.orders enable row level security;
 drop policy if exists "orders_insert_public" on public.orders;
 create policy "orders_insert_public"
   on public.orders for insert
-  with check (true);
+  with check (status = 'pending' or status is null);
 
 -- Only admins can read / update / delete orders
 drop policy if exists "orders_read_admin" on public.orders;
@@ -377,7 +377,11 @@ alter table public.messages enable row level security;
 drop policy if exists "messages_insert_public" on public.messages;
 create policy "messages_insert_public"
   on public.messages for insert
-  with check (true);
+  with check (
+    (is_read is false or is_read is null)
+    and (is_replied is false or is_replied is null)
+    and (is_archived is false or is_archived is null)
+  );
 
 -- Only admins can read / update / delete messages
 drop policy if exists "messages_read_admin" on public.messages;

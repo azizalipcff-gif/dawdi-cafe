@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { GOOGLE_MAPS_URL, DEFAULT_SETTINGS } from "@/lib/constants";
+import { safeHref } from "@/lib/utils";
 import type { SiteSettings } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 
@@ -53,10 +54,10 @@ export function GoogleMap({ settings }: GoogleMapProps) {
             className="w-full"
           />
           <div className="absolute bottom-4 left-4 right-4 flex justify-center">
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              <a
+                href={safeHref(mapsUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-dark text-foreground rounded-full shadow-lg hover:shadow-xl transition-shadow text-sm font-medium"
             >
               <MapPin className="w-4 h-4 text-brand" />

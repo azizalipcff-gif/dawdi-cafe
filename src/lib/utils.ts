@@ -41,3 +41,19 @@ export function formatTime(time: string): string {
   d.setHours(hours, minutes, 0, 0);
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(d);
 }
+
+// Only permit safe URL schemes when rendering a (possibly admin-controlled) link
+// target. Blocks javascript:, data:, vbscript:, and other dangerous schemes that
+// could be stored in settings and later rendered as an <a href>.
+export function safeHref(url: string | null | undefined, fallback = "#"): string {
+  if (typeof url !== "string" || url.trim() === "") return fallback;
+  const trimmed = url.trim();
+  if (
+    /^(https?:\/\/|mailto:|tel:)/i.test(trimmed) ||
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("#")
+  ) {
+    return trimmed;
+  }
+  return fallback;
+}

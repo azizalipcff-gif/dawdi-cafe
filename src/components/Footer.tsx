@@ -7,6 +7,7 @@ import {
   PHONE, INSTAGRAM_URL, GOOGLE_MAPS_URL,
   ADDRESS, DEFAULT_SETTINGS,
 } from "@/lib/constants";
+import { safeHref } from "@/lib/utils";
 import type { SiteSettings } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { getNavItems } from "@/lib/i18n/dictionaries";
@@ -109,13 +110,13 @@ export function Footer({ settings }: FooterProps) {
                 </li>
               )}
               <li>
-                <a href={instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
+                <a href={safeHref(instagram)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
                   <Instagram className="w-4 h-4 text-brand shrink-0" />
                   @{instagramHandle}
                 </a>
               </li>
               <li>
-                <a href={maps} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
+                <a href={safeHref(maps)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-brand transition-colors">
                   <MapPin className="w-4 h-4 text-brand shrink-0" />
                   {address}
                 </a>

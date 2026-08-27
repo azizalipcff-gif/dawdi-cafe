@@ -45,6 +45,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const description = settings.seo?.description ?? SITE_DESCRIPTION;
   const phone = settings.contact?.phone ?? "+212656480972";
 
+  // Admin-controlled values (cafe name/description/phone) are rendered into a
+  // <script> tag, so escape `<` to prevent a `</script>` break-out (XSS).
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    name: siteName,
+    description,
+    url: SITE_URL,
+    telephone: phone,
+    address: { "@type": "PostalAddress", addressCountry: "MA" },
+    servesCuisine: ["Coffee", "Crêpes", "Snacks"],
+    image: `${SITE_URL}/logo/logo.png`,
+  }).replace(/</g, "\\u003c");
+
   return (
     <html lang={locale} dir={getDir(locale)} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
@@ -52,19 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           id="organization-jsonld"
           type="application/ld+json"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "CafeOrCoffeeShop",
-              name: siteName,
-              description,
-              url: SITE_URL,
-              telephone: phone,
-              address: { "@type": "PostalAddress", addressCountry: "MA" },
-              servesCuisine: ["Coffee", "Crêpes", "Snacks"],
-              image: `${SITE_URL}/logo/logo.png`,
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: jsonLd }}
         />
         <Providers>
           <LocaleProvider locale={locale} dict={dict}>

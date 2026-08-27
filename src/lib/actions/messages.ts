@@ -2,9 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { messageSchema } from "@/lib/validation";
+import { getClientIp, rateLimitPublic, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 // Public: send a contact message
 export async function createMessage(formData: FormData) {
+  const rl = await rateLimitPublic(await getClientIp(), "message");
+  if (!rl.success) return { error: RATE_LIMIT_MESSAGE };
+
   const parsed = messageSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

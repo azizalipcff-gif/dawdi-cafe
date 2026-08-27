@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PHONE, INSTAGRAM_URL, GOOGLE_MAPS_URL, ADDRESS, DEFAULT_SETTINGS } from "@/lib/constants";
+import { safeHref } from "@/lib/utils";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -94,7 +95,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
                   <div>
                     <p className="text-xs text-muted uppercase tracking-wider">{info.label}</p>
                     {info.href ? (
-                      <a href={info.href} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:text-brand transition-colors">
+                      <a href={safeHref(info.href)} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:text-brand transition-colors">
                         {info.value}
                       </a>
                     ) : (

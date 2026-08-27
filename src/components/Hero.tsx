@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SITE_NAME, GOOGLE_MAPS_URL, INSTAGRAM_URL, DEFAULT_SETTINGS } from "@/lib/constants";
+import { safeHref } from "@/lib/utils";
 import type { SiteSettings, HeroSlide } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 
@@ -70,7 +71,7 @@ export function Hero({ settings, slides }: HeroProps) {
                 className="flex flex-wrap items-center justify-center gap-4"
               >
                 {active.button_label && active.button_url && (
-                  <Link href={active.button_url}>
+                  <Link href={safeHref(active.button_url)}>
                     <Button size="lg" className="text-base gap-2">
                       <Coffee className="w-4 h-4" />
                       {active.button_label}
@@ -82,7 +83,7 @@ export function Hero({ settings, slides }: HeroProps) {
                     {dict.hero.viewMenu}
                   </Button>
                 </Link>
-                <a href={contact.instagram || INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+                <a href={safeHref(contact.instagram || INSTAGRAM_URL)} target="_blank" rel="noopener noreferrer">
                   <Button variant="ghost" size="lg" className="text-base text-gray-300 hover:text-white gap-2">
                     <Instagram className="w-4 h-4" />
                     {dict.hero.instagram}
@@ -183,13 +184,13 @@ export function Hero({ settings, slides }: HeroProps) {
               {dict.hero.viewMenu}
             </Button>
           </Link>
-          <a href={contact.maps_url || GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer">
+          <a href={safeHref(contact.maps_url || GOOGLE_MAPS_URL)} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="lg" className="text-base border-white/20 text-white hover:bg-white hover:text-dark gap-2">
               <MapPin className="w-4 h-4" />
               {dict.hero.findUs}
             </Button>
           </a>
-          <a href={contact.instagram || INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+          <a href={safeHref(contact.instagram || INSTAGRAM_URL)} target="_blank" rel="noopener noreferrer">
             <Button variant="ghost" size="lg" className="text-base text-gray-300 hover:text-white gap-2">
               <Instagram className="w-4 h-4" />
               {dict.hero.instagram}

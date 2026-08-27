@@ -18,6 +18,8 @@ export function isSupabaseStorageUrl(url: string | null | undefined): boolean {
 
 // Extracts the object path from a valid bucket public URL, or null when the URL
 // does not belong to our bucket (covers /public assets and external URLs).
+// Rejects path-traversal and absolute/encoded attempts so Storage deletion can
+// never escape the intended object namespace.
 export function extractStoragePath(url: string | null | undefined): string | null {
   if (!isSupabaseStorageUrl(url)) return null;
   const idx = (url as string).indexOf(PUBLIC_MARKER);
@@ -28,7 +30,17 @@ export function extractStoragePath(url: string | null | undefined): string | nul
   } catch {
     // keep raw if decoding fails
   }
-  return path || null;
+  if (!path) return null;
+  // Block traversal, backslashes, absolute paths, and control characters.
+  if (
+    path.includes("..") ||
+    path.includes("\\") ||
+    path.startsWith("/") ||
+    /[\x00-\x1f]/.test(path)
+  ) {
+    return null;
+  }
+  return path;
 }
 
 // Deletes a Storage object only if the URL belongs to our bucket. Refuses

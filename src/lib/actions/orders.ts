@@ -3,9 +3,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { orderSchema } from "@/lib/validation";
 import type { OrderItem } from "@/lib/types";
+import { getClientIp, rateLimitPublic, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 // Public: place an order from the cart
 export async function createOrder(formData: FormData) {
+  const rl = await rateLimitPublic(await getClientIp(), "order");
+  if (!rl.success) return { error: RATE_LIMIT_MESSAGE };
+
   let items: OrderItem[] = [];
   try {
     items = JSON.parse(String(formData.get("items") ?? "[]"));

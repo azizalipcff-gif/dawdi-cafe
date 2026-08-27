@@ -3,8 +3,10 @@
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Product } from "@/lib/types";
-import { revalidateAdmin } from "./shared";
+import { revalidateAdmin, isValidId, pickAllowed, dbError } from "./shared";
 import { deleteStorageImage, isImageReferencedInTable } from "@/lib/admin/storage";
+import { validateProduct } from "./validation";
+import { rateLimitAdmin } from "@/lib/rate-limit";
 
 export type ProductInput = Omit<Product, "id" | "created_at" | "updated_at" | "category">;
 export type ProductPatch = Partial<
@@ -25,21 +27,35 @@ export type ProductPatch = Partial<
   >
 >;
 
+const PRODUCT_FIELDS = [
+  "name",
+  "description",
+  "price",
+  "discount",
+  "ingredients",
+  "image_url",
+  "category_id",
+  "is_available",
+  "is_featured",
+  "is_recommended",
+  "sort_order",
+  "translations",
+] as const;
+
 export async function createProduct(
   input: ProductInput
 ): Promise<{ error?: string; data?: Product }> {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  await rateLimitAdmin(admin.id);
+  const parsed = validateProduct(input as Record<string, unknown>, true);
+  if (!parsed.ok) return { error: parsed.error };
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("products")
-    .insert({
-      ...input,
-      ingredients: input.ingredients ?? [],
-      discount: input.discount ?? 0,
-    })
+    .insert(parsed.value)
     .select()
     .single();
-  if (error) return { error: error.message };
+  if (error) return dbError(error);
   revalidateAdmin();
   return { data: data as Product };
 }
@@ -48,11 +64,16 @@ export async function updateProduct(
   id: string,
   patch: ProductPatch
 ): Promise<{ error?: string }> {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  await rateLimitAdmin(admin.id);
+  if (!isValidId(id)) return { error: "Invalid product id." };
+  const parsed = validateProduct(patch as Record<string, unknown>, false);
+  if (!parsed.ok) return { error: parsed.error };
+  const patchClean = parsed.value;
   const supabase = createAdminClient();
 
   // Only touch Storage when the image field is part of this update.
-  const newUrl = patch.image_url ?? null;
+  const newUrl = (patchClean.image_url as string | null) ?? null;
   let oldUrl: string | null = null;
   if (newUrl !== undefined) {
     const { data: current } = await supabase
@@ -60,10 +81,14 @@ export async function updateProduct(
       .select("image_url")
       .eq("id", id)
       .single();
+    if (!current) return { error: "Product not found." };
     oldUrl = (current?.image_url as string | null) ?? null;
   }
 
-  const { error } = await supabase.from("products").update(patch).eq("id", id);
+  // Restrict the update to explicitly allowed columns (mass-assignment guard).
+  const clean = pickAllowed(patchClean, PRODUCT_FIELDS);
+
+  const { error } = await supabase.from("products").update(clean).eq("id", id);
   if (error) {
     // DB update failed: clean up the just-uploaded orphan (only if it is not
     // already referenced by another record and differs from the previous image).
@@ -71,7 +96,7 @@ export async function updateProduct(
       const referenced = await isImageReferencedInTable("products", "image_url", newUrl, id);
       if (!referenced) await deleteStorageImage(newUrl);
     }
-    return { error: error.message };
+    return dbError(error);
   }
   revalidateAdmin();
 
@@ -85,17 +110,20 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string): Promise<{ error?: string }> {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  await rateLimitAdmin(admin.id, "delete");
+  if (!isValidId(id)) return { error: "Invalid product id." };
   const supabase = createAdminClient();
   const { data: current } = await supabase
     .from("products")
     .select("image_url")
     .eq("id", id)
     .single();
+  if (!current) return { error: "Product not found." };
   const url = (current?.image_url as string | null) ?? null;
 
   const { error } = await supabase.from("products").delete().eq("id", id);
-  if (error) return { error: error.message };
+  if (error) return dbError(error);
   revalidateAdmin();
 
   // Delete the Storage object only after the DB record is gone and no other

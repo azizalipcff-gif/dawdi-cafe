@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, Coffee } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { adminLogin } from "@/lib/admin/actions/auth";
 import { ADMIN_PATH } from "@/lib/constants";
 
 export function AdminLoginClient() {
@@ -19,13 +19,9 @@ export function AdminLoginClient() {
       const form = new FormData(e.currentTarget);
       const email = String(form.get("email") ?? "");
       const password = String(form.get("password") ?? "");
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await adminLogin(email, password);
       if (error) {
-        setError(error.message);
+        setError(error);
         return;
       }
       router.push(ADMIN_PATH);
