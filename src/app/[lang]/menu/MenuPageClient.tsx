@@ -26,6 +26,14 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
 
   const activeCategories = categories.filter((c) => c.is_active);
 
+  // Sanity check: if duplicate product ids are present, warn to help root-cause tracing.
+  const idCounts = new Map<string, number>();
+  for (const p of products) idCounts.set(p.id, (idCounts.get(p.id) ?? 0) + 1);
+  const dupIds = Array.from(idCounts.entries()).filter(([, c]) => c > 1).map(([id]) => id);
+  if (dupIds.length > 0) {
+    console.error("MenuPageClient: duplicate product ids present in products prop", { dupIds, total: products.length });
+  }
+
   const grouped = activeCategories
     .map((cat) => ({
       category: cat,
