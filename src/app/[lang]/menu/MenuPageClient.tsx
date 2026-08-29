@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coffee, Search, Plus, MessageCircle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/ProductImage";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { Product, Category } from "@/lib/types";
@@ -136,20 +136,13 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
                     >
                       <Link href={link(`/product/${item.id}`)} className="block">
                         <div className="relative -mx-4 -mt-4 mb-3">
-                          <div className="relative aspect-[4/3] w-full">
-                            {item.image_url ? (
-                              <Image
-                                src={item.image_url}
-                                alt={item.name}
-                                fill
-                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                className="object-cover transition group-hover:scale-[1.03]"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-muted/20 flex items-center justify-center">
-                                <Coffee className="w-10 h-10 text-muted/50" />
-                              </div>
-                            )}
+                  <div className="relative aspect-[4/3] w-full">
+                    <ProductImage
+                      src={item.image_url}
+                      alt={item.name}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition group-hover:scale-[1.03]"
+                    />
                             {!item.is_available && (
                               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                 <span className="bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full">

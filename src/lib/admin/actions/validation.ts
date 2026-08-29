@@ -261,6 +261,22 @@ export function validateProduct(
     ["translations", translations as FieldResult<unknown>],
   ]);
   if (!res.ok) return res;
+  // Publishing a product makes it publicly visible, so require a complete,
+  // public-ready record. We only enforce fields the caller is actively setting
+  // in this request (in a create flow all are present; in a publish patch the
+  // description/category are usually already stored, so we don't block a simple
+  // status toggle of an already-complete product).
+  if (res.value.status === "published") {
+    if (raw.description !== undefined) {
+      const d = res.value.description;
+      if (!d || (typeof d === "string" && d.trim().length === 0)) {
+        return { ok: false, error: "Description is required before publishing." };
+      }
+    }
+    if (raw.category_id !== undefined && !res.value.category_id) {
+      return { ok: false, error: "Category is required before publishing." };
+    }
+  }
   // Ensure jsonb columns always have a value on create.
   if (res.value.translations === undefined) res.value.translations = {};
   return res;

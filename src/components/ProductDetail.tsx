@@ -1,12 +1,12 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Coffee, ArrowLeft, Tag, ListChecks, Store } from "lucide-react";
+import { ArrowLeft, Tag, ListChecks, Store } from "lucide-react";
 import type { Product } from "@/lib/types";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
 import { localizePath } from "@/lib/i18n/config";
 import { formatCurrency } from "@/lib/utils";
-import { ProductActions, ProductImageFallback } from "@/components/ProductActions";
+import { ProductActions } from "@/components/ProductActions";
+import { ProductImage } from "@/components/ProductImage";
 
 export function ProductDetail({
   product,
@@ -41,19 +41,14 @@ export function ProductDetail({
 
         <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2">
           {/* Image */}
-          <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-border bg-card">
-            {product.image_url ? (
-              <Image
-                src={product.image_url}
-                alt={product.name}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <ProductImageFallback />
-            )}
+        <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-border bg-card">
+          <ProductImage
+            src={product.image_url}
+            alt={product.name}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+            priority
+          />
             {hasDiscount && (
               <span className="absolute left-4 top-4 rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
                 -{discountPct}%
@@ -156,19 +151,12 @@ export function ProductDetail({
                     className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand/30 hover:shadow-lg"
                   >
                     <div className="relative aspect-square w-full overflow-hidden bg-muted/20">
-                      {item.image_url ? (
-                        <Image
-                          src={item.image_url}
-                          alt={item.name}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 25vw"
-                          className="object-cover transition group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Coffee className="h-10 w-10 text-muted/40" />
-                        </div>
-                      )}
+                      <ProductImage
+                        src={item.image_url}
+                        alt={item.name}
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover transition group-hover:scale-105"
+                      />
                     </div>
                     <div className="flex flex-1 flex-col p-3">
                       <h3 className="truncate text-sm font-semibold text-foreground">

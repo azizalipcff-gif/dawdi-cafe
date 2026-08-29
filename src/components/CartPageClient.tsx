@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { Minus, Plus, Trash2, ShoppingBag, Coffee, MessageCircle } from "lucide-react";
+import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/components/CartProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,15 +104,14 @@ export function CartPageClient({ whatsappNumber }: { whatsappNumber: string }) {
                 transition={{ delay: i * 0.05 }}
                 className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border"
               >
-                {item.image_url ? (
-                  <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="64px" />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-lg bg-brand/10 flex items-center justify-center shrink-0">
-                    <Coffee className="w-6 h-6 text-brand" />
-                  </div>
-                )}
+                <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                  <ProductImage
+                    src={item.image_url}
+                    alt={item.name}
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{item.name}</p>
                   <p className="text-sm text-muted font-mono">{formatCurrency(item.price)}</p>

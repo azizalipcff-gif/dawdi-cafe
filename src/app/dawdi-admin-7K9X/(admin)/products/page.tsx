@@ -1,21 +1,31 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import {
   Plus,
   Pencil,
   Trash2,
   X,
   Search,
-  ImageIcon,
   Star,
 } from "lucide-react";
 import { useAdminStore } from "@/lib/admin/store";
 import type { Product, ProductStatus } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { ProductImage } from "@/components/ProductImage";
+
+// A product is publicly ready only when it has the minimum data a visitor
+// expects: a name, a description, a category, and a price.
+function isProductReady(p: Product): boolean {
+  return (
+    !!p.name &&
+    !!p.description &&
+    !!p.category_id &&
+    p.price !== null &&
+    p.price !== undefined
+  );
+}
 
 interface ProductForm {
   id: string | null;
@@ -212,19 +222,13 @@ export default function ProductsPage() {
                 <tr key={product.id} className="transition hover:bg-white/[0.02]">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]">
-                        {product.image_url ? (
-                          <Image
-                            src={product.image_url}
-                            alt={product.name}
-                            width={44}
-                            height={44}
-                            unoptimized
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <ImageIcon className="h-5 w-5 text-zinc-600" />
-                        )}
+                      <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]">
+                        <ProductImage
+                          src={product.image_url}
+                          alt={product.name}
+                          className="h-full w-full object-cover"
+                          sizes="44px"
+                        />
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium text-zinc-100">{product.name}</p>
@@ -233,6 +237,18 @@ export default function ProductsPage() {
                             {product.description}
                           </p>
                         )}
+                        <span
+                          className={cn(
+                            "mt-0.5 inline-block text-[10px] font-semibold",
+                            isProductReady(product)
+                              ? "text-green-400"
+                              : "text-amber-400"
+                          )}
+                        >
+                          {isProductReady(product)
+                            ? "Ready to publish"
+                            : "Incomplete"}
+                        </span>
                       </div>
                     </div>
                   </td>
