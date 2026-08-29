@@ -70,7 +70,7 @@ const STATUS_BADGE: Record<ProductStatus, string> = {
 };
 
 export default function ProductsPage() {
-  const { products, categories, addProduct, updateProduct, deleteProduct } =
+  const { products, categories, addProduct, updateProduct, deleteProduct, pendingProductUpdates } =
     useAdminStore();
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -260,7 +260,8 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => toggleFeatured(product)}
+                      onClick={() => !pendingProductUpdates.includes(product.id) && toggleFeatured(product)}
+                      disabled={pendingProductUpdates.includes(product.id)}
                       aria-label="Toggle featured"
                       className={cn(
                         "rounded-full border p-1.5 transition",
@@ -274,7 +275,8 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => toggleAvailability(product)}
+                      onClick={() => !pendingProductUpdates.includes(product.id) && toggleAvailability(product)}
+                      disabled={pendingProductUpdates.includes(product.id)}
                       className={cn(
                         "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition",
                         product.is_available

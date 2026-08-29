@@ -87,8 +87,11 @@ interface AdminStore {
   customers: AdminCustomer[];
 
   addProduct: (input: ProductInput) => void;
-  updateProduct: (id: string, patch: ProductPatch) => void;
+  updateProduct: (id: string, patch: ProductPatch) => Promise<void>;
   deleteProduct: (id: string) => void;
+
+  // IDs of products currently being updated (used to show loading states)
+  pendingProductUpdates: string[];
 
   addCategory: (input: CategoryInput) => void;
   updateCategory: (id: string, patch: CategoryPatch) => void;
@@ -137,6 +140,8 @@ export function AdminStoreProvider({
     [router]
   );
 
+  const [pendingProductUpdates, setPendingProductUpdates] = useState<string[]>([]);
+
   // ---------- Products ----------
   const addProduct = useCallback(
     (input: ProductInput) => {
@@ -160,14 +165,46 @@ export function AdminStoreProvider({
   );
 
   const updateProduct = useCallback(
-    (id: string, patch: ProductPatch) => {
+    async (id: string, patch: ProductPatch) => {
+      // Prevent concurrent updates for the same product
+      setPendingProductUpdates((prev) => (prev.includes(id) ? prev : [...prev, id]));
+
+      const previous = data.products.find((p) => p.id === id) ?? null;
+
+      // Optimistic update
       setData((d) => ({
         ...d,
         products: d.products.map((p) => (p.id === id ? { ...p, ...patch, updated_at: now() } : p)),
       }));
-      void updateProductAction(id, patch).then(reportError);
+
+      try {
+        const res = await updateProductAction(id, patch);
+        if (res?.error) {
+          // Revert optimistic update on error
+          if (previous) {
+            setData((d) => ({
+              ...d,
+              products: d.products.map((p) => (p.id === id ? previous : p)),
+            }));
+          }
+          reportError(res);
+        } else {
+          // Optionally show a small success toast
+          toast.success("Saved.");
+        }
+      } catch (err) {
+        if (previous) {
+          setData((d) => ({
+            ...d,
+            products: d.products.map((p) => (p.id === id ? previous : p)),
+          }));
+        }
+        reportError({ error: String(err) });
+      } finally {
+        setPendingProductUpdates((prev) => prev.filter((x) => x !== id));
+      }
     },
-    [reportError]
+    [data.products, reportError]
   );
 
   const deleteProduct = useCallback(
@@ -397,6 +434,7 @@ export function AdminStoreProvider({
       ...data,
       addProduct,
       updateProduct,
+      pendingProductUpdates,
       deleteProduct,
       addCategory,
       updateCategory,
@@ -417,6 +455,7 @@ export function AdminStoreProvider({
       data,
       addProduct,
       updateProduct,
+      pendingProductUpdates,
       deleteProduct,
       addCategory,
       updateCategory,
