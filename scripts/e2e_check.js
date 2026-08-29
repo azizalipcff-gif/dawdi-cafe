@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
+import fs from 'fs';
+import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-const envPath = path.resolve(__dirname, '..', '.env.local');
+const envPath = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
   envContent.split(/\r?\n/).forEach((line) => {
@@ -22,7 +22,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
-(async function () {
+async function main() {
   const { data, error } = await supabase.from('products').select('*').ilike('name', 'E2E Product%');
   if (error) {
     console.error('error', error);
@@ -32,4 +32,6 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSessio
   for (const p of data) {
     console.log(p.id, p.name, p.status, p.is_available, p.is_featured, p.image_url);
   }
-})();
+}
+
+main();

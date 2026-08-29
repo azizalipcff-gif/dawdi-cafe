@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
+import fs from 'fs';
+import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-const envPath = path.resolve(__dirname, '..', '.env.local');
+const envPath = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
   envContent.split(/\r?\n/).forEach((line) => {
@@ -22,7 +22,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
-(async function () {
+async function main() {
   const { data: existing } = await supabase.from('products').select('id,name').ilike('name', 'E2E Product%');
   if (existing && existing.length > 0) {
     console.log('deleting', existing.length, 'existing E2E products');
@@ -76,10 +76,12 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSessio
       updated_at: now,
     },
   ];
-  const { data, error } = await supabase.from('products').insert(products).select('*');
+  const { data: inserted, error } = await supabase.from('products').insert(products).select('*');
   if (error) {
     console.error('insert error', error);
     process.exit(1);
   }
-  console.log('reset products created', data.map((p) => p.id));
-})();
+  console.log('reset products created', inserted.map((p) => p.id));
+}
+
+main();

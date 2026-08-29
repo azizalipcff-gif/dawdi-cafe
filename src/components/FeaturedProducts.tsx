@@ -8,7 +8,7 @@ import type { Product } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 
 export function FeaturedProducts({ products }: { products: Product[] }) {
-  const { dict, link } = useI18n();
+  const { link } = useI18n();
   if (!products || products.length === 0) return null;
   return (
     <section className="relative py-16 bg-gradient-to-b from-background to-white">

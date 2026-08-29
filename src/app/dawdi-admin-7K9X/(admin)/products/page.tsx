@@ -139,10 +139,12 @@ export default function ProductsPage() {
     }
     if (Object.keys(errors).length) {
       setFormErrors(errors);
-      // Focus the first field that has an error
+      // Focus the first field that has an error (use timeout to ensure element is mounted)
       if (errors.description && descRef.current) {
-        descRef.current.focus();
-        descRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => {
+          descRef.current?.focus();
+          descRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 0);
       }
       return;
     }
@@ -495,6 +497,9 @@ export default function ProductsPage() {
                     )}
                   </label>
                   <textarea
+                    id="product-description"
+                    aria-invalid={!!formErrors.description}
+                    aria-describedby={formErrors.description ? 'product-description-error' : undefined}
                     ref={descRef}
                     value={form.description}
                     onChange={(e) => {
@@ -511,7 +516,9 @@ export default function ProductsPage() {
                     )}
                   />
                   {formErrors.description && (
-                    <p className="mt-1 text-sm text-red-400">{formErrors.description}</p>
+                    <p id="product-description-error" className="mt-1 text-sm text-red-400">
+                      {formErrors.description}
+                    </p>
                   )}
                 </div>
               </div>

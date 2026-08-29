@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
 // Load .env.local manually so this script has the same env as Next in dev
-const envPath = path.resolve(__dirname, '..', '.env.local');
+const envPath = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
   envContent.split(/\r?\n/).forEach((line) => {
@@ -12,14 +13,13 @@ if (fs.existsSync(envPath)) {
       const key = m[1];
       let val = m[2];
       // strip surrounding quotes
-      if ((val.startsWith("\"") && val.endsWith("\"")) || (val.startsWith("'") && val.endsWith("'"))) {
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
         val = val.slice(1, -1);
       }
       process.env[key] = val;
     }
   });
 }
-const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -36,9 +36,8 @@ async function uploadTestImage() {
   const pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAnMB9J7KacwAAAAASUVORK5CYII=';
   const buf = Buffer.from(pngBase64, 'base64');
   fs.writeFileSync(imgPath, buf);
-
   const key = `e2e/test-img-${Date.now()}.png`;
-  const { data, error } = await supabase.storage.from('images').upload(key, buf, { cacheControl: '3600', upsert: false, contentType: 'image/png' });
+  const { error } = await supabase.storage.from('images').upload(key, buf, { cacheControl: '3600', upsert: false, contentType: 'image/png' });
   if (error) {
     console.error('upload error', error);
     throw error;
@@ -95,13 +94,13 @@ async function createProducts(imageUrl) {
     },
   ];
 
-  const { data, error } = await supabase.from('products').insert(products).select('*');
+  const { data: inserted, error } = await supabase.from('products').insert(products).select('*');
   if (error) {
     console.error('insert products error', error);
     throw error;
   }
-  console.log('created products', data.map((p) => ({ id: p.id, name: p.name })));
-  return data;
+  console.log('created products', inserted.map((p) => ({ id: p.id, name: p.name })));
+  return inserted;
 }
 
 async function createAdminUser() {
@@ -125,7 +124,7 @@ async function createAdminUser() {
         console.log('inserted into admins table');
       }
     } catch (e) {
-      // ignore
+      console.error('admins insert ignored', e?.message || e);
     }
     return { email, password, id: uid };
   } catch (err) {
@@ -134,7 +133,7 @@ async function createAdminUser() {
   }
 }
 
-(async function main() {
+async function main() {
   try {
     const imageUrl = await uploadTestImage();
     const prods = await createProducts(imageUrl);
@@ -144,4 +143,6 @@ async function createAdminUser() {
     console.error(err);
     process.exit(1);
   }
-})();
+}
+
+main();
