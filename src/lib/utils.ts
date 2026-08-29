@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
-  return `${Number(amount || 0).toFixed(2)} MAD`;
+  return `${Number(amount || 0).toFixed(2)} DH`;
 }
 
 export function normalizePhone(raw: string): string {

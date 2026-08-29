@@ -57,18 +57,10 @@ export async function getCategories(
   }));
 }
 
-export async function getProducts(
-  activeOnly = true,
-  locale: Locale = defaultLocale
-): Promise<Product[]> {  const supabase = await createClient();
-  let query = supabase
-    .from("products")
-    .select("*, category:categories(*)")
-    .order("sort_order");
-  if (activeOnly) query = query.eq("is_available", true);
-  const { data } = await query;
-  return ((data ?? []) as Product[]).map((row) => ({
+function normalizeProduct(locale: Locale) {
+  return (row: Product): Product => ({
     ...row,
+    status: (row.status as Product["status"]) ?? "published",
     name: localize(row.name, row.translations, "name", locale) ?? row.name,
     description: localize(row.description, row.translations, "description", locale),
     category: row.category
@@ -78,32 +70,90 @@ export async function getProducts(
           description: localize(row.category.description, row.category.translations, "description", locale),
         }
       : null,
-  }));
+  });
+}
+
+export async function getProducts(
+  activeOnly = true,
+  locale: Locale = defaultLocale
+): Promise<Product[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("products")
+    .select("*, category:categories(*)")
+    .eq("status", "published")
+    .order("sort_order");
+  if (activeOnly) query = query.eq("is_available", true);
+  const { data, error } = await query;
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
 }
 
 export async function getFeaturedProducts(
   locale: Locale = defaultLocale
 ): Promise<Product[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .select("*, category:categories(*)")
+    .eq("status", "published")
     .eq("is_featured", true)
     .eq("is_available", true)
     .order("sort_order")
     .limit(8);
-  return ((data ?? []) as Product[]).map((row) => ({
-    ...row,
-    name: localize(row.name, row.translations, "name", locale) ?? row.name,
-    description: localize(row.description, row.translations, "description", locale),
-    category: row.category
-      ? {
-          ...row.category,
-          name: localize(row.category.name, row.category.translations, "name", locale) ?? row.category.name,
-          description: localize(row.category.description, row.category.translations, "description", locale),
-        }
-      : null,
-  }));
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
+}
+
+// Public, single-product lookup used by the product detail page. Only returns a
+// product when it is explicitly published — unpublished/pending/rejected/archived
+// products resolve to null and the page renders a 404. RLS (products_select_public)
+// provides a second layer of enforcement for anonymous readers.
+export async function getProductById(
+  id: string,
+  locale: Locale = defaultLocale
+): Promise<Product | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, category:categories(*)")
+    .eq("id", id)
+    .eq("status", "published")
+    .maybeSingle();
+  if (error || !data) return null;
+  return normalizeProduct(locale)(data as Product);
+}
+
+// Published products in the same category, excluding the current one. Used for
+// the "you might also like" section. Status filter guarantees unpublished
+// products never leak into the public detail page.
+export async function getRelatedProducts(
+  categoryId: string | null,
+  excludeId: string,
+  locale: Locale = defaultLocale,
+  limit = 4
+): Promise<Product[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("products")
+    .select("*, category:categories(*)")
+    .eq("status", "published")
+    .neq("id", excludeId)
+    .order("sort_order")
+    .limit(limit);
+  if (categoryId) query = query.eq("category_id", categoryId);
+  const { data, error } = await query;
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
 }
 
 export async function getGallery(

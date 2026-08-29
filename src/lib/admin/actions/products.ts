@@ -3,6 +3,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Product } from "@/lib/types";
+import { PRODUCT_STATUSES } from "@/lib/types";
 import { revalidateAdmin, isValidId, pickAllowed, dbError } from "./shared";
 import { deleteStorageImage, isImageReferencedInTable } from "@/lib/admin/storage";
 import { validateProduct } from "./validation";
@@ -22,6 +23,7 @@ export type ProductPatch = Partial<
     | "is_available"
     | "is_featured"
     | "is_recommended"
+    | "status"
     | "sort_order"
     | "translations"
   >
@@ -38,6 +40,7 @@ const PRODUCT_FIELDS = [
   "is_available",
   "is_featured",
   "is_recommended",
+  "status",
   "sort_order",
   "translations",
 ] as const;
@@ -133,4 +136,46 @@ export async function deleteProduct(id: string): Promise<{ error?: string }> {
     if (!referenced) await deleteStorageImage(url);
   }
   return {};
+}
+
+// ---------------------------------------------------------------------------
+// Moderation / publication status
+// ---------------------------------------------------------------------------
+
+// Set a product's moderation status. Used by the admin panel to move a product
+// through its lifecycle (draft -> pending -> published, or reject/archive). The
+// public site only ever renders `published`; every other state is hidden by RLS
+// (products_select_public) and by the public data layer, so this is the single
+// authoritative switch for public visibility.
+export async function setProductStatus(
+  id: string,
+  status: Product["status"]
+): Promise<{ error?: string }> {
+  const admin = await requireAdmin();
+  await rateLimitAdmin(admin.id, "mutation");
+  if (!isValidId(id)) return { error: "Invalid product id." };
+  if (!PRODUCT_STATUSES.includes(status)) return { error: "Invalid status." };
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("products").update({ status }).eq("id", id);
+  if (error) return dbError(error);
+  revalidateAdmin();
+  return {};
+}
+
+export async function publishProduct(id: string) {
+  return setProductStatus(id, "published");
+}
+
+export async function rejectProduct(id: string) {
+  return setProductStatus(id, "rejected");
+}
+
+export async function archiveProduct(id: string) {
+  return setProductStatus(id, "archived");
+}
+
+// Move a product into the moderation queue (hidden from the public site until an
+// admin publishes it).
+export async function submitProductForReview(id: string) {
+  return setProductStatus(id, "pending");
 }

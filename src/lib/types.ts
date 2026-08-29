@@ -19,6 +19,25 @@ export interface Category {
   translations?: Translations | null;
 }
 
+// Publication/moderation state. A product is publicly visible ONLY when its
+// status is "published". Every other state (draft, pending, rejected, archived)
+// must be hidden from the public site and is enforced by RLS + the public
+// data layer.
+export type ProductStatus =
+  | "draft"
+  | "pending"
+  | "published"
+  | "rejected"
+  | "archived";
+
+export const PRODUCT_STATUSES: ProductStatus[] = [
+  "draft",
+  "pending",
+  "published",
+  "rejected",
+  "archived",
+];
+
 export interface Product {
   id: string;
   category_id: string | null;
@@ -31,6 +50,7 @@ export interface Product {
   is_available: boolean;
   is_featured: boolean;
   is_recommended: boolean;
+  status: ProductStatus;
   sort_order: number;
   created_at: string;
   updated_at: string;

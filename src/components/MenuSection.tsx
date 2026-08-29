@@ -85,30 +85,30 @@ export function MenuSection({ products, categories }: MenuSectionProps) {
             </div>
 
             <AnimatePresence mode="wait">
-              <motion.div
-                key={active?.category.id ?? "empty"}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="max-w-3xl mx-auto"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(active?.items ?? []).map((item, i) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="group p-5 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 flex flex-col"
-                    >
-                      <div className="flex items-start justify-between gap-4 flex-1">
-                        <div className="flex-1">
-                          <h4 className="font-display text-base font-semibold text-foreground">{item.name}</h4>
-                          <p className="text-sm text-muted mt-1 leading-relaxed">{item.description}</p>
-                        </div>
-                        <span className="text-brand font-semibold text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
-                      </div>
+          <motion.div
+            key={active?.category.id ?? "empty"}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(active?.items ?? []).map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="group p-5 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 flex flex-col"
+                >
+                  <Link href={link(`/product/${item.id}`)} className="flex items-start justify-between gap-4 flex-1">
+                    <div className="flex-1">
+                      <h4 className="font-display text-base font-semibold text-foreground group-hover:text-brand transition-colors">{item.name}</h4>
+                      <p className="text-sm text-muted mt-1 leading-relaxed">{item.description}</p>
+                    </div>
+                    <span className="text-brand font-semibold text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
+                  </Link>
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={() => {

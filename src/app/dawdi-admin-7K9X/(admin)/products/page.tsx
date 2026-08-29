@@ -12,7 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import { useAdminStore } from "@/lib/admin/store";
-import type { Product } from "@/lib/types";
+import type { Product, ProductStatus } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -22,10 +22,12 @@ interface ProductForm {
   name: string;
   description: string;
   price: string;
+  discount: string;
   category_id: string;
   image_url: string | null;
   is_available: boolean;
   is_featured: boolean;
+  status: ProductStatus;
 }
 
 const EMPTY_FORM: ProductForm = {
@@ -33,10 +35,28 @@ const EMPTY_FORM: ProductForm = {
   name: "",
   description: "",
   price: "",
+  discount: "",
   category_id: "",
   image_url: null,
   is_available: true,
   is_featured: false,
+  status: "pending",
+};
+
+const STATUS_OPTIONS: ProductStatus[] = [
+  "draft",
+  "pending",
+  "published",
+  "rejected",
+  "archived",
+];
+
+const STATUS_BADGE: Record<ProductStatus, string> = {
+  draft: "border-zinc-500/30 bg-zinc-500/15 text-zinc-300",
+  pending: "border-amber-500/30 bg-amber-500/15 text-amber-400",
+  published: "border-green-500/30 bg-green-500/15 text-green-400",
+  rejected: "border-red-500/30 bg-red-500/15 text-red-400",
+  archived: "border-white/10 bg-white/5 text-zinc-400",
 };
 
 export default function ProductsPage() {
@@ -75,10 +95,12 @@ export default function ProductsPage() {
       name: product.name,
       description: product.description ?? "",
       price: String(product.price),
+      discount: product.discount ? String(product.discount) : "",
       category_id: product.category_id ?? "",
       image_url: product.image_url,
       is_available: product.is_available,
       is_featured: product.is_featured,
+      status: product.status,
     });
     setShowForm(true);
   };
@@ -88,23 +110,32 @@ export default function ProductsPage() {
     const price = Number(form.price);
     if (!form.name.trim() || Number.isNaN(price) || price < 0) return;
 
+    const discount = form.discount.trim() === "" ? 0 : Number(form.discount);
+    if (Number.isNaN(discount) || discount < 0) return;
+
     const base = {
       category_id: form.category_id || null,
       name: form.name.trim(),
       description: form.description.trim() || null,
       price,
+      discount,
       image_url: form.image_url,
       is_available: form.is_available,
       is_featured: form.is_featured,
+      status: form.status,
       sort_order: products.length + 1,
     };
 
     if (form.id) {
       updateProduct(form.id, base);
     } else {
-      addProduct({ ...base, discount: 0, ingredients: [], is_recommended: false });
+      addProduct({ ...base, ingredients: [], is_recommended: false });
     }
     setShowForm(false);
+  };
+
+  const changeStatus = (product: Product, status: ProductStatus) => {
+    updateProduct(product.id, { status });
   };
 
   const handleDelete = (product: Product) => {
@@ -130,7 +161,10 @@ export default function ProductsPage() {
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
             {products.length} products · {products.filter((p) => p.is_available).length}{" "}
-            available · {products.filter((p) => p.is_featured).length} featured
+            available · {products.filter((p) => p.is_featured).length} featured ·{" "}
+            <span className="text-amber-400">
+              {products.filter((p) => p.status === "pending").length} pending review
+            </span>
           </p>
         </div>
         <button
@@ -161,14 +195,15 @@ export default function ProductsPage() {
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Price</th>
                 <th className="px-4 py-3 font-medium">Featured</th>
-                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Availability</th>
+                <th className="px-4 py-3 font-medium">Moderation</th>
                 <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-10 text-center text-zinc-500">
                     No products found.
                   </td>
                 </tr>
@@ -235,6 +270,24 @@ export default function ProductsPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3">
+                    <select
+                      value={product.status}
+                      onChange={(e) =>
+                        changeStatus(product, e.target.value as ProductStatus)
+                      }
+                      className={cn(
+                        "rounded-full border bg-transparent px-2.5 py-1 text-[11px] font-semibold outline-none transition",
+                        STATUS_BADGE[product.status]
+                      )}
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s} className="bg-zinc-900 text-zinc-100">
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => openEdit(product)}
@@ -265,7 +318,7 @@ export default function ProductsPage() {
           onClick={() => setShowForm(false)}
         >
           <div
-            className="w-full max-w-lg rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl"
+            className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
@@ -281,7 +334,8 @@ export default function ProductsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+            <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+              <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
               <ImageUpload
                 label="Product image"
                 value={form.image_url}
@@ -324,7 +378,7 @@ export default function ProductsPage() {
 
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-zinc-400">
-                    Price (MAD)
+                    Price (DH)
                   </label>
                   <input
                     value={form.price}
@@ -338,6 +392,49 @@ export default function ProductsPage() {
                     placeholder="0.00"
                     className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-brand/60"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                    Old price (DH, optional)
+                  </label>
+                  <input
+                    value={form.discount}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, discount: e.target.value }))
+                    }
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-brand/60"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+                    Moderation status
+                  </label>
+                  <select
+                    value={form.status}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, status: e.target.value as ProductStatus }))
+                    }
+                    className={cn(
+                      "w-full rounded-xl border bg-zinc-900 px-4 py-2.5 text-sm text-white outline-none transition focus:border-brand/60",
+                      STATUS_BADGE[form.status]
+                    )}
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s} value={s} className="bg-zinc-900 text-zinc-100">
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1.5 text-[11px] text-zinc-500">
+                    Only &quot;published&quot; products are visible on the public site. Pending, draft,
+                    rejected and archived products stay hidden.
+                  </p>
                 </div>
 
                 <div className="sm:col-span-2">
@@ -404,7 +501,9 @@ export default function ProductsPage() {
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              </div>
+
+              <div className="flex shrink-0 items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}

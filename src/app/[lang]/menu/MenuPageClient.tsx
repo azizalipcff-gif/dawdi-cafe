@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coffee, Search, Plus, MessageCircle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { Product, Category } from "@/lib/types";
@@ -20,7 +21,7 @@ interface MenuPageClientProps {
 
 export function MenuPageClient({ products, categories, whatsappNumber }: MenuPageClientProps) {
   const { addItem } = useCart();
-  const { dict } = useI18n();
+  const { dict, link } = useI18n();
   const [search, setSearch] = useState("");
 
   const activeCategories = categories.filter((c) => c.is_active);
@@ -133,37 +134,39 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
                       transition={{ delay: i * 0.05 }}
                       className="group p-4 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 flex flex-col overflow-hidden"
                     >
-                      <div className="relative -mx-4 -mt-4 mb-3">
-                        <div className="relative aspect-[4/3] w-full">
-                          {item.image_url ? (
-                            <Image
-                              src={item.image_url}
-                              alt={item.name}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted/20 flex items-center justify-center">
-                              <Coffee className="w-10 h-10 text-muted/50" />
-                            </div>
-                          )}
-                          {!item.is_available && (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                              <span className="bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full">
-                                {dict.menuPage.notAvailable}
-                              </span>
-                            </div>
-                          )}
+                      <Link href={link(`/product/${item.id}`)} className="block">
+                        <div className="relative -mx-4 -mt-4 mb-3">
+                          <div className="relative aspect-[4/3] w-full">
+                            {item.image_url ? (
+                              <Image
+                                src={item.image_url}
+                                alt={item.name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                className="object-cover transition group-hover:scale-[1.03]"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-muted/20 flex items-center justify-center">
+                                <Coffee className="w-10 h-10 text-muted/50" />
+                              </div>
+                            )}
+                            {!item.is_available && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <span className="bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full">
+                                  {dict.menuPage.notAvailable}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start justify-between gap-4 flex-1">
-                        <div className="flex-1">
-                          <h3 className="font-display text-base font-semibold text-foreground">{item.name}</h3>
-                          <p className="text-sm text-muted mt-1 leading-relaxed line-clamp-2">{item.description}</p>
+                        <div className="flex items-start justify-between gap-4 flex-1">
+                          <div className="flex-1">
+                            <h3 className="font-display text-base font-semibold text-foreground group-hover:text-brand transition-colors">{item.name}</h3>
+                            <p className="text-sm text-muted mt-1 leading-relaxed line-clamp-2">{item.description}</p>
+                          </div>
+                          <span className="text-brand font-semibold text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
                         </div>
-                        <span className="text-brand font-semibold text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
-                      </div>
+                      </Link>
                       <div className="flex items-center justify-end gap-2 mt-3">
                         <a
                           href={buildItemWhatsAppHref(item)}

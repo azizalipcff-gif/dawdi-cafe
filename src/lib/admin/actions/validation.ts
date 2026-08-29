@@ -10,6 +10,8 @@
 //   - update (patch) flows pass false → absent fields are skipped entirely
 //     (never overwritten), only the fields actually supplied are validated.
 
+import { PRODUCT_STATUSES, type ProductStatus } from "@/lib/types";
+
 // A single field result is one of: a valid value, "skip" (field not supplied,
 // leave it untouched), or an error.
 type FieldResult<T> =
@@ -77,6 +79,19 @@ function boolField(v: unknown, opts: { field: string }): FieldResult<boolean> {
   if (v === "true") return okField(true);
   if (v === "false") return okField(false);
   return errField(`${opts.field} must be true or false.`);
+}
+
+// Restrict product status to the known moderation states. Only accepts values
+// from PRODUCT_STATUSES; never lets an unknown string reach the database.
+function statusField(v: unknown, opts: { field: string; requireAll: boolean }): FieldResult<ProductStatus> {
+  if (v === undefined) {
+    if (opts.requireAll) return errField(`${opts.field} is required.`);
+    return skipField();
+  }
+  if (typeof v !== "string" || !PRODUCT_STATUSES.includes(v as ProductStatus)) {
+    return errField(`${opts.field} must be one of: ${PRODUCT_STATUSES.join(", ")}.`);
+  }
+  return okField(v as ProductStatus);
 }
 
 interface IdOpts {
@@ -226,6 +241,7 @@ export function validateProduct(
   const is_available = boolField(raw.is_available, { field: "Available" });
   const is_featured = boolField(raw.is_featured, { field: "Featured" });
   const is_recommended = boolField(raw.is_recommended, { field: "Recommended" });
+  const status = statusField(raw.status, { field: "Status", requireAll });
   const sort_order = numField(raw.sort_order, { field: "Sort order", integer: true, min: 0, max: 1_000_000, requireAll });
   const translations = objectField(raw.translations, { field: "Translations", requireAll });
 
@@ -240,6 +256,7 @@ export function validateProduct(
     ["is_available", is_available as FieldResult<unknown>],
     ["is_featured", is_featured as FieldResult<unknown>],
     ["is_recommended", is_recommended as FieldResult<unknown>],
+    ["status", status as FieldResult<unknown>],
     ["sort_order", sort_order as FieldResult<unknown>],
     ["translations", translations as FieldResult<unknown>],
   ]);
