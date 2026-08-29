@@ -50,11 +50,18 @@ export async function getCategories(
   let query = supabase.from("categories").select("*").order("sort_order");
   if (activeOnly) query = query.eq("is_active", true);
   const { data } = await query;
-  return ((data ?? []) as Category[]).map((row) => ({
+  const rows = ((data ?? []) as Category[]).map((row) => ({
     ...row,
     name: localize(row.name, row.translations, "name", locale) ?? row.name,
     description: localize(row.description, row.translations, "description", locale),
   }));
+  // Deduplicate categories by id (defensive guard against unexpected dupes)
+  const map = new Map<string, Category>();
+  for (const r of rows) {
+    if (map.has(r.id)) console.warn("Duplicate category id returned from getCategories:", r.id);
+    map.set(r.id, r);
+  }
+  return Array.from(map.values());
 }
 
 function normalizeProduct(locale: Locale) {
@@ -89,7 +96,14 @@ export async function getProducts(
     console.error(error);
     return [];
   }
-  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
+  // Defensive dedupe: ensure each product id appears once. Log duplicates for investigation.
+  const rows = ((data ?? []) as Product[]).map(normalizeProduct(locale));
+  const map = new Map<string, Product>();
+  for (const p of rows) {
+    if (map.has(p.id)) console.warn("Duplicate product id returned from getProducts:", p.id);
+    map.set(p.id, p);
+  }
+  return Array.from(map.values());
 }
 
 export async function getFeaturedProducts(
@@ -108,7 +122,13 @@ export async function getFeaturedProducts(
     console.error(error);
     return [];
   }
-  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
+  const rows = ((data ?? []) as Product[]).map(normalizeProduct(locale));
+  const map = new Map<string, Product>();
+  for (const p of rows) {
+    if (map.has(p.id)) console.warn("Duplicate product id returned from getFeaturedProducts:", p.id);
+    map.set(p.id, p);
+  }
+  return Array.from(map.values());
 }
 
 // Public, single-product lookup used by the product detail page. Only returns a
