@@ -14,9 +14,21 @@ export function revalidatePublic(productId?: string) {
   // Revalidate homepage and menu for every locale.
   for (const locale of locales) {
     try {
-      revalidatePath(localizePath("/", locale));
-      revalidatePath(localizePath("/menu", locale));
-      if (productId) revalidatePath(localizePath(`/product/${productId}`, locale));
+      // Revalidate the route and the layout so any cached layout-level
+      // data (used by server components) is refreshed as well. Some Next.js
+      // setups cache layout fragments separately, so revalidating both
+      // ensures the homepage reflects admin-driven changes.
+      const home = localizePath("/", locale);
+      const menu = localizePath("/menu", locale);
+      revalidatePath(home);
+      revalidatePath(home, "layout");
+      revalidatePath(menu);
+      revalidatePath(menu, "layout");
+      if (productId) {
+        const prod = localizePath(`/product/${productId}`, locale);
+        revalidatePath(prod);
+        revalidatePath(prod, "layout");
+      }
     } catch (e) {
       // Swallow revalidation errors but log server-side for diagnostics.
       console.warn("revalidatePublic failed for", locale, productId, e);

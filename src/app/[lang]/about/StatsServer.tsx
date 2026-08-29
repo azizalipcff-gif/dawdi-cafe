@@ -1,6 +1,6 @@
 import type { BusinessStatistic } from "@/lib/types";
 import { motion } from "framer-motion";
-import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { staggerContainer } from "@/lib/animations";
 
 interface Props {
   stats?: BusinessStatistic[];
