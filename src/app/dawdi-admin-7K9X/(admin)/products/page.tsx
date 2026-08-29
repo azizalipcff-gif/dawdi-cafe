@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Plus,
   Pencil,
@@ -75,6 +75,8 @@ export default function ProductsPage() {
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<ProductForm>(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const descRef = useRef<HTMLTextAreaElement | null>(null);
 
   const categoryName = useMemo(() => {
     const map = new Map(categories.map((c) => [c.id, c.name]));
@@ -96,6 +98,7 @@ export default function ProductsPage() {
       ...EMPTY_FORM,
       category_id: categories[0]?.id ?? "",
     });
+    setFormErrors({});
     setShowForm(true);
   };
 
@@ -112,6 +115,7 @@ export default function ProductsPage() {
       is_featured: product.is_featured,
       status: product.status,
     });
+    setFormErrors({});
     setShowForm(true);
   };
 
@@ -122,6 +126,26 @@ export default function ProductsPage() {
 
     const discount = form.discount.trim() === "" ? 0 : Number(form.discount);
     if (Number.isNaN(discount) || discount < 0) return;
+
+    // Client-side validation for publish-required fields
+    const errors: Record<string, string> = {};
+    if (form.status === "published") {
+      if (!form.description || form.description.trim().length === 0) {
+        errors.description = "Description is required when publishing.";
+      }
+      if (!form.category_id) {
+        errors.category_id = "Category is required when publishing.";
+      }
+    }
+    if (Object.keys(errors).length) {
+      setFormErrors(errors);
+      // Focus the first field that has an error
+      if (errors.description && descRef.current) {
+        descRef.current.focus();
+        descRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
 
     const base = {
       category_id: form.category_id || null,
@@ -142,6 +166,7 @@ export default function ProductsPage() {
       addProduct({ ...base, ingredients: [], is_recommended: false });
     }
     setShowForm(false);
+    setFormErrors({});
   };
 
   const changeStatus = (product: Product, status: ProductStatus) => {
@@ -380,10 +405,14 @@ export default function ProductsPage() {
                   </label>
                   <select
                     value={form.category_id}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, category_id: e.target.value }))
-                    }
-                    className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-2.5 text-sm text-white outline-none transition focus:border-brand/60"
+                    onChange={(e) => {
+                      setForm((f) => ({ ...f, category_id: e.target.value }));
+                      if (formErrors.category_id) setFormErrors((s) => ({ ...s, category_id: "" }));
+                    }}
+                    className={cn(
+                      "w-full rounded-xl bg-zinc-900 px-4 py-2.5 text-sm text-white outline-none transition",
+                      formErrors.category_id ? "border-red-500/60" : "border-white/10 focus:border-brand/60"
+                    )}
                   >
                     <option value="">Uncategorized</option>
                     {categories.map((c) => (
@@ -392,6 +421,9 @@ export default function ProductsPage() {
                       </option>
                     ))}
                   </select>
+                  {formErrors.category_id && (
+                    <p className="mt-1 text-sm text-red-400">{formErrors.category_id}</p>
+                  )}
                 </div>
 
                 <div>
@@ -458,16 +490,29 @@ export default function ProductsPage() {
                 <div className="sm:col-span-2">
                   <label className="mb-1.5 block text-xs font-medium text-zinc-400">
                     Description
+                    {form.status === "published" && (
+                      <span className="ml-2 text-[11px] font-semibold text-amber-300">(required to publish)</span>
+                    )}
                   </label>
                   <textarea
+                    ref={descRef}
                     value={form.description}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, description: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      setForm((f) => ({ ...f, description: e.target.value }));
+                      if (formErrors.description) setFormErrors((s) => ({ ...s, description: "" }));
+                    }}
                     rows={3}
                     placeholder="Short description"
-                    className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-brand/60"
+                    className={cn(
+                      "w-full resize-none rounded-xl border bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none transition",
+                      formErrors.description
+                        ? "border-red-500/60 focus:border-red-500"
+                        : "border-white/10 focus:border-brand/60"
+                    )}
                   />
+                  {formErrors.description && (
+                    <p className="mt-1 text-sm text-red-400">{formErrors.description}</p>
+                  )}
                 </div>
               </div>
 
