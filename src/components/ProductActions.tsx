@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { toast } from "sonner";
-import { Coffee, MessageCircle, Plus, Check } from "lucide-react";
+import { MessageCircle, Plus, Check } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/components/CartProvider";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
@@ -74,8 +75,14 @@ export function ProductActions({
 
 export function ProductImageFallback() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-muted/20">
-      <Coffee className="h-16 w-16 text-muted/40" />
+    <div className="flex h-full w-full items-center justify-center bg-muted/20 overflow-hidden">
+      <Image
+        src="/logo/logo.png"
+        alt="DAWDI CAFE"
+        width={200}
+        height={200}
+        className="h-full w-full object-contain p-6 opacity-80"
+      />
     </div>
   );
 }
