@@ -211,3 +211,16 @@ export interface Album {
   updated_at: string;
   translations?: Translations | null;
 }
+
+export interface BusinessStatistic {
+  id: string;
+  key: string;
+  label: string;
+  value: string | null;
+  description: string | null;
+  use_real_count: boolean;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

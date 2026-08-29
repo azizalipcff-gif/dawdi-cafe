@@ -8,7 +8,7 @@ import { Testimonials } from "@/components/Testimonials";
 import { GoogleMap } from "@/components/GoogleMap";
 import { ReservationSection } from "@/components/ReservationSection";
 import { ContactSection } from "@/components/ContactSection";
-import { getSettings, getProducts, getCategories, getGallery, getTestimonials, getHeroSlides, getFeaturedProducts } from "@/lib/data";
+import { getSettings, getProducts, getCategories, getGallery, getTestimonials, getHeroSlides, getFeaturedProducts, getBusinessStatistics } from "@/lib/data";
 import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
 
 export default async function Home({
@@ -28,6 +28,8 @@ export default async function Home({
     getHeroSlides(true, locale),
   ]);
 
+  const stats = await getBusinessStatistics(locale);
+
   // Featured products shown on homepage should be explicitly fetched to
   // respect the `is_featured` flag and avoid rendering non-featured items.
   const featured = await getFeaturedProducts(locale);
@@ -38,7 +40,7 @@ export default async function Home({
       <Features />
       <FeaturedProducts products={featured} />
       <MenuSection products={products} categories={categories} />
-      <AboutSection settings={settings} />
+      <AboutSection settings={settings} stats={stats} />
       <GallerySection items={gallery} />
       <Testimonials testimonials={testimonials} />
       <GoogleMap settings={settings} />

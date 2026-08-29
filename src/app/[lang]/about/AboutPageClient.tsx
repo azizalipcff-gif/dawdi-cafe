@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Coffee, Heart, Users, Star, Award, Leaf } from "lucide-react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { fadeInUp, slideInLeft, slideInRight, staggerContainer } from "@/lib/animations";
-import type { SiteSettings } from "@/lib/types";
+import type { SiteSettings, BusinessStatistic } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { fmt } from "@/lib/i18n/config";
 
@@ -19,19 +19,30 @@ const valueIcons = [
 
 interface AboutPageClientProps {
   settings?: Partial<SiteSettings>;
+  stats?: BusinessStatistic[];
 }
 
-export function AboutPageClient({ settings }: AboutPageClientProps) {
+export function AboutPageClient({ settings, stats: statsProp }: AboutPageClientProps) {
   const { dict } = useI18n();
   const cafeName = settings?.cafe?.name ?? "DAWDI CAFE";
   const tagline = settings?.cafe?.tagline ?? "Coffee for the Road";
   const values = dict.values.map((v, i) => ({ ...v, description: v.desc, icon: valueIcons[i] }));
-  const stats = [
-    { label: dict.stats.happyCustomers, value: 5000, suffix: "+" },
-    { label: dict.stats.products, value: 50, suffix: "+" },
-    { label: dict.stats.yearsServing, value: 5, suffix: "+" },
-    { label: dict.stats.loveCare, value: 100, suffix: "%" },
-  ];
+  const rawStats = statsProp && statsProp.length > 0
+    ? statsProp
+    : [
+        { id: "", key: "daily_customers", label: dict.stats.happyCustomers, value: "200+", description: null, use_real_count: false, sort_order: 0, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "", key: "products", label: dict.stats.products, value: "50+", description: null, use_real_count: false, sort_order: 1, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "", key: "years_experience", label: dict.stats.yearsServing, value: "4+", description: null, use_real_count: false, sort_order: 2, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "", key: "quality_care", label: dict.stats.loveCare, value: "100%", description: null, use_real_count: false, sort_order: 3, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      ];
+
+  const stats = rawStats.map((s) => {
+    const raw = s.value ?? "";
+    const match = raw.match(/^\s*(\d+[\d,]*)\s*([+%]*)/);
+    const num = match ? Number(match[1].replace(/,/g, "")) : 0;
+    const suffix = match ? match[2] ?? "" : "";
+    return { label: s.label, num, suffix };
+  });
 
   return (
     <div className="pt-24">
@@ -136,9 +147,9 @@ export function AboutPageClient({ settings }: AboutPageClientProps) {
                 variants={fadeInUp}
                 className="text-center p-8 rounded-2xl bg-card border border-border"
               >
-                <div className="font-display text-4xl md:text-5xl font-bold text-brand">
-                  <AnimatedCounter to={stat.value} suffix={stat.suffix} />
-                </div>
+                    <div className="font-display text-4xl md:text-5xl font-bold text-brand">
+                      <AnimatedCounter to={stat.num} suffix={stat.suffix} />
+                    </div>
                 <p className="text-sm text-muted mt-2">{stat.label}</p>
               </motion.div>
             ))}

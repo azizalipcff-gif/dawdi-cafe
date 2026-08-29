@@ -3,6 +3,7 @@ import { getSettings } from "@/lib/data";
 import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { AboutPageClient } from "./AboutPageClient";
+import { getBusinessStatistics } from "@/lib/data";
 
 export async function generateMetadata({
   params,
@@ -26,5 +27,6 @@ export default async function AboutPage({
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : defaultLocale;
   const settings = await getSettings(locale);
-  return <AboutPageClient settings={settings} />;
+  const stats = await getBusinessStatistics(locale);
+  return <AboutPageClient settings={settings} stats={stats} />;
 }

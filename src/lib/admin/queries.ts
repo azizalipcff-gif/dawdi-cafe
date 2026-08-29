@@ -11,6 +11,7 @@ import type {
   Reservation,
   SiteSettings,
   Testimonial,
+  BusinessStatistic,
 } from "@/lib/types";
 import type { AdminCustomer } from "./store";
 
@@ -25,6 +26,7 @@ export interface AdminData {
   testimonials: Testimonial[];
   settings: SiteSettings;
   customers: AdminCustomer[];
+  statistics: BusinessStatistic[];
 }
 
 function mergeSettings(rows: { key: string; value: Record<string, unknown> | null }[]): SiteSettings {
@@ -96,6 +98,7 @@ export const getAdminData = cache(async (): Promise<AdminData> => {
     testimonials,
     settingsRes,
     profiles,
+    statistics,
   ] = await Promise.all([
     supabase.from("products").select("*").order("sort_order"),
     supabase.from("categories").select("*").order("sort_order"),
@@ -107,6 +110,7 @@ export const getAdminData = cache(async (): Promise<AdminData> => {
     supabase.from("testimonials").select("*").order("sort_order"),
     supabase.from("settings").select("key, value"),
     supabase.from("profiles").select("id, full_name, phone, created_at"),
+    supabase.from("business_statistics").select("*").order("sort_order"),
   ]);
 
   return {
@@ -125,5 +129,6 @@ export const getAdminData = cache(async (): Promise<AdminData> => {
       (orders.data ?? []) as Order[],
       (profiles.data ?? []) as { id: string; full_name: string | null; phone: string | null; created_at: string }[]
     ),
+    statistics: (statistics.data ?? []) as BusinessStatistic[],
   };
 });

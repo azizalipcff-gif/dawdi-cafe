@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Coffee, Heart, Users, Star } from "lucide-react";
 import { fadeInUp, slideInLeft, slideInRight, staggerContainer } from "@/lib/animations";
 import { AnimatedCounter } from "./AnimatedCounter";
-import type { SiteSettings } from "@/lib/types";
+import type { SiteSettings, BusinessStatistic } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { fmt } from "@/lib/i18n/config";
 
@@ -12,19 +12,30 @@ const statIcons = [<Users key="u" className="w-5 h-5" />, <Coffee key="c" classN
 
 interface AboutSectionProps {
   settings?: Partial<SiteSettings>;
+  stats?: BusinessStatistic[];
 }
 
-export function AboutSection({ settings }: AboutSectionProps) {
+export function AboutSection({ settings, stats: statsProp }: AboutSectionProps) {
   const { dict } = useI18n();
   const cafeName = settings?.cafe?.name ?? "DAWDI CAFE";
   const description = settings?.cafe?.description ?? dict.aboutSection.p1;
   const tagline = settings?.cafe?.tagline ?? "Coffee for the Road";
-  const stats = [
-    { label: dict.stats.happyCustomers, value: 5000, suffix: "+" },
-    { label: dict.stats.products, value: 50, suffix: "+" },
-    { label: dict.stats.yearsServing, value: 5, suffix: "+" },
-    { label: dict.stats.loveCare, value: 100, suffix: "%" },
-  ];
+  const rawStats = statsProp && statsProp.length > 0
+    ? statsProp
+    : [
+        { id: "", key: "daily_customers", label: dict.stats.happyCustomers, value: "200+", description: null, use_real_count: false, sort_order: 0, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "", key: "products", label: dict.stats.products, value: "50+", description: null, use_real_count: false, sort_order: 1, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "", key: "years_experience", label: dict.stats.yearsServing, value: "4+", description: null, use_real_count: false, sort_order: 2, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { id: "", key: "quality_care", label: dict.stats.loveCare, value: "100%", description: null, use_real_count: false, sort_order: 3, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      ];
+
+  const stats = rawStats.map((s) => {
+    const raw = s.value ?? "";
+    const match = raw.match(/^\s*(\d+[\d,]*)\s*([+%]*)/);
+    const num = match ? Number(match[1].replace(/,/g, "")) : 0;
+    const suffix = match ? match[2] ?? "" : "";
+    return { label: s.label, num, suffix };
+  });
   return (
     <section className="relative py-24 md:py-32 bg-background overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-brand/5 rounded-full blur-3xl" />
@@ -82,7 +93,7 @@ export function AboutSection({ settings }: AboutSectionProps) {
                 {statIcons[i]}
               </div>
               <div className="font-display text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter to={stat.value} suffix={stat.suffix} />
+                <AnimatedCounter to={stat.num} suffix={stat.suffix} />
               </div>
               <p className="text-sm text-muted mt-1">{stat.label}</p>
             </motion.div>

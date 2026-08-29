@@ -8,6 +8,7 @@ import type {
   SiteSettings,
   HeroSlide,
   Album,
+  BusinessStatistic,
   Translations,
 } from "@/lib/types";
 
@@ -217,5 +218,44 @@ export async function getAlbums(
     name: localize(row.name, row.translations, "name", locale) ?? row.name,
     description: localize(row.description, row.translations, "description", locale),
   }));
+}
+
+export async function getBusinessStatistics(
+  locale: Locale = defaultLocale
+): Promise<BusinessStatistic[]> {
+  const supabase = await createClient();
+  void locale;
+  // Only return active statistics to public readers
+  const { data } = await supabase.from("business_statistics").select("*").eq("is_active", true).order("sort_order");
+  const rows = (data ?? []) as BusinessStatistic[];
+
+  // If the products statistic requests a real count, fetch it and replace
+  const needsProductsCount = rows.some((r) => r.use_real_count && r.key === "products");
+  if (needsProductsCount) {
+    const { count } = await supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published")
+      .eq("is_available", true);
+    const productCount = typeof count === "number" ? count : 0;
+    for (const row of rows) {
+      if (row.key === "products" && row.use_real_count) {
+        row.value = `${productCount}+`;
+      }
+    }
+  }
+
+  // Sensible defaults: if no rows defined, return a minimal set so frontend
+  // doesn't break on empty DB.
+  if (rows.length === 0) {
+    return [
+      { id: "", key: "daily_customers", label: "Daily Customers", value: "200+", description: null, use_real_count: false, sort_order: 0, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { id: "", key: "products", label: "Products", value: "50+", description: null, use_real_count: false, sort_order: 1, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { id: "", key: "years_experience", label: "Years of Experience", value: "4+", description: null, use_real_count: false, sort_order: 2, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { id: "", key: "quality_care", label: "Quality & Care", value: "100%", description: null, use_real_count: false, sort_order: 3, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    ];
+  }
+
+  return rows.map((r) => ({ ...r }));
 }
 

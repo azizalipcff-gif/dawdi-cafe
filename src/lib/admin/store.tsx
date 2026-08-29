@@ -21,6 +21,7 @@ import type {
   Reservation,
   SiteSettings,
   Testimonial,
+  BusinessStatistic,
 } from "@/lib/types";
 import {
   createProduct as createProductAction,
@@ -85,6 +86,7 @@ interface AdminStore {
   testimonials: Testimonial[];
   settings: SiteSettings;
   customers: AdminCustomer[];
+  statistics: BusinessStatistic[];
 
   addProduct: (input: ProductInput) => void;
   updateProduct: (id: string, patch: ProductPatch) => Promise<void>;
