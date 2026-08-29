@@ -21,16 +21,16 @@ export function MenuSection({ products, categories }: MenuSectionProps) {
   const { addItem } = useCart();
   const { dict, link } = useI18n();
   const activeCategories = categories.filter((c) => c.is_active);
-  const featuredProducts = products.filter((p) => p.is_available);
+  const availableProducts = products.filter((p) => p.is_available);
 
   const grouped = activeCategories
     .map((cat) => ({
       category: cat,
-      items: featuredProducts.filter((p) => p.category_id === cat.id),
+      items: availableProducts.filter((p) => p.category_id === cat.id),
     }))
     .filter((g) => g.items.length > 0);
 
-  const uncategorized = featuredProducts.filter((p) => !p.category_id || !activeCategories.some((c) => c.id === p.category_id));
+  const uncategorized = availableProducts.filter((p) => !p.category_id || !activeCategories.some((c) => c.id === p.category_id));
   if (uncategorized.length > 0) {
     grouped.push({
       category: { id: "uncategorized", name: dict.common.more, slug: "more", description: null, image_url: null, sort_order: 999, is_active: true, created_at: "", updated_at: "" },

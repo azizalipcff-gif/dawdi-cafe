@@ -55,21 +55,7 @@ export async function getCategories(
     name: localize(row.name, row.translations, "name", locale) ?? row.name,
     description: localize(row.description, row.translations, "description", locale),
   }));
-  // Deduplicate categories by id (defensive guard against unexpected dupes)
-  const map = new Map<string, Category>();
-  const dupCounts = new Map<string, number>();
-  for (const r of rows) {
-    dupCounts.set(r.id, (dupCounts.get(r.id) ?? 0) + 1);
-    if (map.has(r.id)) console.warn("Duplicate category id returned from getCategories:", r.id);
-    map.set(r.id, r);
-  }
-  const dupTotal = Array.from(dupCounts.values()).filter((c) => c > 1).length;
-  if (dupTotal > 0) {
-    console.warn("getCategories returned duplicated ids", { total: rows.length, unique: map.size, dupCounts });
-  } else {
-    console.info("getCategories: fetched", rows.length, "categories");
-  }
-  return Array.from(map.values());
+  return rows;
 }
 
 function normalizeProduct(locale: Locale) {
@@ -104,23 +90,7 @@ export async function getProducts(
     console.error(error);
     return [];
   }
-  // Defensive dedupe: ensure each product id appears once. Log duplicates for investigation.
-  const rawRows = (data ?? []) as Product[];
-  const rows = rawRows.map(normalizeProduct(locale));
-  const map = new Map<string, Product>();
-  const dupCounts = new Map<string, number>();
-  for (const p of rows) {
-    dupCounts.set(p.id, (dupCounts.get(p.id) ?? 0) + 1);
-    if (map.has(p.id)) console.warn("Duplicate product id returned from getProducts:", p.id);
-    map.set(p.id, p);
-  }
-  const dupTotal = Array.from(dupCounts.values()).filter((c) => c > 1).length;
-  if (dupTotal > 0) {
-    console.warn("getProducts returned duplicated ids", { total: rows.length, unique: map.size, dupCounts });
-  } else {
-    console.info("getProducts: fetched", rows.length, "products");
-  }
-  return Array.from(map.values());
+  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
 }
 
 export async function getFeaturedProducts(
@@ -139,22 +109,7 @@ export async function getFeaturedProducts(
     console.error(error);
     return [];
   }
-  const rawRows = (data ?? []) as Product[];
-  const rows = rawRows.map(normalizeProduct(locale));
-  const map = new Map<string, Product>();
-  const dupCounts = new Map<string, number>();
-  for (const p of rows) {
-    dupCounts.set(p.id, (dupCounts.get(p.id) ?? 0) + 1);
-    if (map.has(p.id)) console.warn("Duplicate product id returned from getFeaturedProducts:", p.id);
-    map.set(p.id, p);
-  }
-  const dupTotal = Array.from(dupCounts.values()).filter((c) => c > 1).length;
-  if (dupTotal > 0) {
-    console.warn("getFeaturedProducts returned duplicated ids", { total: rows.length, unique: map.size, dupCounts });
-  } else {
-    console.info("getFeaturedProducts: fetched", rows.length, "featured products");
-  }
-  return Array.from(map.values());
+  return ((data ?? []) as Product[]).map(normalizeProduct(locale));
 }
 
 // Public, single-product lookup used by the product detail page. Only returns a
