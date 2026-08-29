@@ -18,6 +18,16 @@ export function AnimatedCounter({ from = 0, to, suffix = "", prefix = "", durati
   const started = useRef(false);
 
   useEffect(() => {
+    // Hide the server-rendered static fallback (if present) once the client
+    // component mounts so hydration shows the correct number server-side and
+    // the animated counter can replace it on the client.
+    try {
+      const el = ref.current;
+      if (el && el.previousElementSibling && (el.previousElementSibling as HTMLElement).classList.contains('stat-static')) {
+        (el.previousElementSibling as HTMLElement).style.display = 'none';
+      }
+    } catch {}
+
     if (!inView || started.current) return;
     started.current = true;
 

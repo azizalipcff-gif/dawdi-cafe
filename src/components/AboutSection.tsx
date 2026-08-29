@@ -93,6 +93,7 @@ export function AboutSection({ settings, stats: statsProp }: AboutSectionProps) 
                 {statIcons[i]}
               </div>
               <div className="font-display text-3xl md:text-4xl font-bold text-foreground">
+                <span className="stat-static tabular-nums">{stat.num.toLocaleString()}{stat.suffix}</span>
                 <AnimatedCounter to={stat.num} suffix={stat.suffix} />
               </div>
               <p className="text-sm text-muted mt-1">{stat.label}</p>
