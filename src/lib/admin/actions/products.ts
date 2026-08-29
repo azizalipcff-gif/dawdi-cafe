@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Product } from "@/lib/types";
 import { PRODUCT_STATUSES } from "@/lib/types";
-import { revalidateAdmin, isValidId, pickAllowed, dbError } from "./shared";
+import { revalidateAdmin, revalidatePublic, isValidId, pickAllowed, dbError } from "./shared";
 import { deleteStorageImage, isImageReferencedInTable } from "@/lib/admin/storage";
 import { validateProduct } from "./validation";
 import { rateLimitAdmin } from "@/lib/rate-limit";
@@ -60,6 +60,8 @@ export async function createProduct(
     .single();
   if (error) return dbError(error);
   revalidateAdmin();
+  // Public pages (homepage/menu/product) should reflect new product immediately.
+  revalidatePublic((data as Product)?.id);
   return { data: data as Product };
 }
 
@@ -102,6 +104,7 @@ export async function updateProduct(
     return dbError(error);
   }
   revalidateAdmin();
+  revalidatePublic(id);
 
   // After a successful update: remove the previous image if it was replaced and
   // no other product still references it. The DB now points at the new URL.
@@ -128,6 +131,7 @@ export async function deleteProduct(id: string): Promise<{ error?: string }> {
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) return dbError(error);
   revalidateAdmin();
+  revalidatePublic(id);
 
   // Delete the Storage object only after the DB record is gone and no other
   // product references the same image.
@@ -159,6 +163,7 @@ export async function setProductStatus(
   const { error } = await supabase.from("products").update({ status }).eq("id", id);
   if (error) return dbError(error);
   revalidateAdmin();
+  revalidatePublic(id);
   return {};
 }
 

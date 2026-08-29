@@ -1,10 +1,27 @@
 import { revalidatePath } from "next/cache";
 import { ADMIN_PATH } from "@/lib/constants";
+import { locales, localizePath } from "@/lib/i18n/config";
 
 // Revalidate the entire admin tree so the layout refetches fresh data after
 // any mutation.
 export function revalidateAdmin() {
   revalidatePath(ADMIN_PATH, "layout");
+}
+
+// Revalidate public-facing pages for all locales.
+// If a productId is provided, also revalidate its detail page.
+export function revalidatePublic(productId?: string) {
+  // Revalidate homepage and menu for every locale.
+  for (const locale of locales) {
+    try {
+      revalidatePath(localizePath("/", locale));
+      revalidatePath(localizePath("/menu", locale));
+      if (productId) revalidatePath(localizePath(`/product/${productId}`, locale));
+    } catch (e) {
+      // Swallow revalidation errors but log server-side for diagnostics.
+      console.warn("revalidatePublic failed for", locale, productId, e);
+    }
+  }
 }
 
 // Reject obviously invalid ids before any privileged DB operation.
