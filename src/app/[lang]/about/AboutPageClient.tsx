@@ -148,6 +148,7 @@ export function AboutPageClient({ settings, stats: statsProp }: AboutPageClientP
                 className="text-center p-8 rounded-2xl bg-card border border-border"
               >
                     <div className="font-display text-4xl md:text-5xl font-bold text-brand">
+                      <span className="stat-static tabular-nums">{stat.num.toLocaleString()}{stat.suffix}</span>
                       <AnimatedCounter to={stat.num} suffix={stat.suffix} />
                     </div>
                 <p className="text-sm text-muted mt-2">{stat.label}</p>
