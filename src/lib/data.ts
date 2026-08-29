@@ -232,15 +232,19 @@ export async function getBusinessStatistics(
   // If the products statistic requests a real count, fetch it and replace
   const needsProductsCount = rows.some((r) => r.use_real_count && r.key === "products");
   if (needsProductsCount) {
-    const { count } = await supabase
+    const { count, error } = await supabase
       .from("products")
       .select("id", { count: "exact", head: true })
       .eq("status", "published")
       .eq("is_available", true);
-    const productCount = typeof count === "number" ? count : 0;
-    for (const row of rows) {
-      if (row.key === "products" && row.use_real_count) {
-        row.value = `${productCount}+`;
+    if (error) {
+      // Log server-side but do not overwrite the admin-provided value with 0
+      console.warn("getBusinessStatistics: failed to count products:", error.message ?? error);
+    } else if (typeof count === "number") {
+      for (const row of rows) {
+        if (row.key === "products" && row.use_real_count) {
+          row.value = `${count}+`;
+        }
       }
     }
   }
