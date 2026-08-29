@@ -204,8 +204,10 @@ create table if not exists public.products (
   ingredients  jsonb not null default '[]'::jsonb,
   image_url    text,
   is_available boolean not null default true,
-  is_featured  boolean not null default false,
+  is_featured boolean not null default false,
   is_recommended boolean not null default false,
+  status       text not null default 'pending'
+               check (status in ('draft', 'pending', 'published', 'rejected', 'archived')),
   translations jsonb not null default '{}'::jsonb,
   sort_order   integer not null default 0,
   created_at   timestamptz not null default now(),
@@ -216,17 +218,23 @@ alter table public.products add column if not exists discount numeric(10,2) not 
 alter table public.products add column if not exists ingredients jsonb not null default '[]'::jsonb;
 alter table public.products add column if not exists is_recommended boolean not null default false;
 alter table public.products add column if not exists translations jsonb not null default '{}'::jsonb;
+alter table public.products add column if not exists status text not null default 'pending' check (status in ('draft', 'pending', 'published', 'rejected', 'archived'));
 
 create index if not exists products_category_idx on public.products(category_id);
 create index if not exists products_featured_idx on public.products(is_featured);
 create index if not exists products_recommended_idx on public.products(is_recommended);
+create index if not exists products_status_idx on public.products(status);
 
 alter table public.products enable row level security;
 
+-- Public/anonymous visitors may ONLY read products that are explicitly
+-- published. Every other state (draft, pending, rejected, archived) is hidden
+-- at the database layer. Admin writes use the service-role client, which
+-- bypasses RLS entirely, so moderators still see and manage all products.
 drop policy if exists "products_select_public" on public.products;
 create policy "products_select_public"
   on public.products for select
-  using (true);
+  using (status = 'published');
 
 drop policy if exists "products_write_admin" on public.products;
 create policy "products_write_admin"
