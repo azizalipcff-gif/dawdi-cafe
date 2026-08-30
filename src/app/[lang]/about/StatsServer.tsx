@@ -1,6 +1,4 @@
 import type { BusinessStatistic } from "@/lib/types";
-import { motion } from "framer-motion";
-import { staggerContainer } from "@/lib/animations";
 
 interface Props {
   stats?: BusinessStatistic[];
@@ -27,13 +25,7 @@ export default function StatsServer({ stats = [] }: Props) {
   return (
     <section className="py-20 bg-background">
       <div className="container-custom">
-        <motion.div
-          variants={staggerContainer}
-          initial="initial"
-          whileInView="whileInView"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto"
-        >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
           {parsed.map((stat) => (
             <div key={stat.label} className="text-center p-8 rounded-2xl bg-card border border-border">
               <div className="font-display text-4xl md:text-5xl font-bold text-brand tabular-nums">
@@ -42,7 +34,7 @@ export default function StatsServer({ stats = [] }: Props) {
               <p className="text-sm text-muted mt-2">{stat.label}</p>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
