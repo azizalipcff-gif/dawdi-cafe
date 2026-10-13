@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/admin/actions/auth";
+import { AdminTranslations } from "@/components/admin/AdminTranslations";
 
 const NAV_ITEMS = [
   { href: "/dawdi-admin-7K9X", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -86,7 +87,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [locale, setLocale] = useState<"ar" | "en" | "fr">("en");
   useEffect(() => { const saved = window.localStorage.getItem("dawdi_admin_locale"); if (saved === "ar" || saved === "en" || saved === "fr") { setLocale(saved); document.documentElement.lang = saved; document.documentElement.dir = saved === "ar" ? "rtl" : "ltr"; } }, []);
-  const copy = { en: { dashboard: "Dashboard", products: "Products", categories: "Categories", orders: "Orders", reservations: "Reservations", messages: "Messages", testimonials: "Testimonials", gallery: "Gallery", homepage: "Homepage", customers: "Customers", settings: "Settings", admin: "Admin Panel", language: "Language" }, fr: { dashboard: "Tableau de bord", products: "Produits", categories: "Catégories", orders: "Commandes", reservations: "Réservations", messages: "Messages", testimonials: "Avis clients", gallery: "Galerie", homepage: "Page d’accueil", customers: "Clients", settings: "Paramètres", admin: "Administration", language: "Langue" }, ar: { dashboard: "لوحة التحكم", products: "المنتجات", categories: "التصنيفات", orders: "الطلبات", reservations: "الحجوزات", messages: "الرسائل", testimonials: "آراء العملاء", gallery: "المعرض", homepage: "الصفحة الرئيسية", customers: "العملاء", settings: "الإعدادات", admin: "لوحة الإدارة", language: "اللغة" } }[locale];
+  const copy = { en: { dashboard: "Dashboard", products: "Products", categories: "Categories", orders: "Orders", reservations: "Reservations", messages: "Messages", testimonials: "Testimonials", gallery: "Gallery", homepage: "Homepage", customers: "Customers", settings: "Settings", admin: "Admin Panel", language: "Language", signOut: "Sign out", back: "{copy.back}" }, fr: { dashboard: "Tableau de bord", products: "Produits", categories: "Catégories", orders: "Commandes", reservations: "Réservations", messages: "Messages", testimonials: "Avis clients", gallery: "Galerie", homepage: "Page d’accueil", customers: "Clients", settings: "Paramètres", admin: "Administration", language: "Langue", signOut: "Déconnexion", back: "← Retour au site" }, ar: { dashboard: "لوحة التحكم", products: "المنتجات", categories: "التصنيفات", orders: "الطلبات", reservations: "الحجوزات", messages: "الرسائل", testimonials: "آراء العملاء", gallery: "المعرض", homepage: "الصفحة الرئيسية", customers: "العملاء", settings: "الإعدادات", admin: "لوحة الإدارة", language: "اللغة", signOut: "تسجيل الخروج", back: "العودة إلى الموقع ←" } }[locale];
   const labels: Record<string, string> = { Dashboard: copy.dashboard, Products: copy.products, Categories: copy.categories, Orders: copy.orders, Reservations: copy.reservations, Messages: copy.messages, Testimonials: copy.testimonials, Gallery: copy.gallery, Homepage: copy.homepage, Customers: copy.customers, Settings: copy.settings };
   const changeLocale = (value: "ar" | "en" | "fr") => { setLocale(value); window.localStorage.setItem("dawdi_admin_locale", value); document.documentElement.lang = value; document.documentElement.dir = value === "ar" ? "rtl" : "ltr"; };
 
@@ -131,7 +132,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className="leading-tight">
           <p className="font-display text-sm font-bold tracking-tight">DAWDI CAFE</p>
-          <p className="text-[11px] text-zinc-400">Admin Panel</p>
+          <p className="text-[11px] text-zinc-400">{copy.admin}</p>
         </div>
         <div className="ml-auto flex items-center gap-2"><label className="sr-only" htmlFor="admin-locale">{copy.language}</label><select id="admin-locale" value={locale} onChange={(e) => changeLocale(e.target.value as "ar" | "en" | "fr")} className="max-w-[88px] rounded-lg border border-white/10 bg-zinc-900 px-2 py-2 text-xs text-white"><option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option></select><SignOutButton compact /></div>
       </div>
@@ -161,7 +162,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       <main className="flex-1 min-w-0 lg:pl-64">
         <div className="mx-auto w-full max-w-6xl min-w-0 px-3 py-24 sm:px-6 lg:py-8 lg:px-8">
-          {children}
+          <AdminTranslations locale={locale}>{children}</AdminTranslations>
         </div>
       </main>
     </div>
