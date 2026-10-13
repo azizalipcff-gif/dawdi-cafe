@@ -119,7 +119,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Mobile header */}
-      <div className="fixed inset-x-0 top-0 z-40 flex h-16 items-center gap-3 border-b border-white/10 bg-zinc-950/90 px-4 backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 sm:h-16 items-center gap-2 sm:gap-3 border-b border-white/10 bg-zinc-950 px-3 sm:px-4 lg:hidden">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
           <Coffee className="h-5 w-5" />
         </div>
@@ -132,7 +132,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 top-16 z-30 flex gap-1 overflow-x-auto border-b border-white/10 bg-zinc-950/90 px-3 py-2 backdrop-blur lg:hidden scrollbar-hide">
+      <nav className="fixed inset-x-0 top-14 sm:top-16 z-30 flex gap-1.5 overflow-x-auto border-b border-white/10 bg-zinc-950 px-2.5 sm:px-3 py-2 lg:hidden scrollbar-hide overscroll-x-contain">
         {NAV_ITEMS.map((item) => {
           const active = item.exact
             ? pathname === item.href
@@ -142,7 +142,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                "flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-2 text-[11px] sm:text-xs font-medium transition-colors",
                 active
                   ? "bg-brand text-white"
                   : "text-zinc-400 hover:bg-white/5 hover:text-white"
@@ -156,7 +156,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       <main className="flex-1 min-w-0 lg:pl-64">
-        <div className="mx-auto w-full max-w-6xl px-4 py-24 lg:py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-6xl min-w-0 px-3 py-24 sm:px-6 lg:py-8 lg:px-8">
           {children}
         </div>
       </main>
