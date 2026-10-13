@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -83,6 +84,11 @@ function SignOutButton({ compact = false }: { compact?: boolean }) {
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [locale, setLocale] = useState<"ar" | "en" | "fr">("en");
+  useEffect(() => { const saved = window.localStorage.getItem("dawdi_admin_locale"); if (saved === "ar" || saved === "en" || saved === "fr") setLocale(saved); }, []);
+  const copy = { en: { dashboard: "Dashboard", products: "Products", categories: "Categories", orders: "Orders", reservations: "Reservations", messages: "Messages", testimonials: "Testimonials", gallery: "Gallery", homepage: "Homepage", customers: "Customers", settings: "Settings", admin: "Admin Panel", language: "Language" }, fr: { dashboard: "Tableau de bord", products: "Produits", categories: "Catégories", orders: "Commandes", reservations: "Réservations", messages: "Messages", testimonials: "Avis clients", gallery: "Galerie", homepage: "Page d’accueil", customers: "Clients", settings: "Paramètres", admin: "Administration", language: "Langue" }, ar: { dashboard: "لوحة التحكم", products: "المنتجات", categories: "التصنيفات", orders: "الطلبات", reservations: "الحجوزات", messages: "الرسائل", testimonials: "آراء العملاء", gallery: "المعرض", homepage: "الصفحة الرئيسية", customers: "العملاء", settings: "الإعدادات", admin: "لوحة الإدارة", language: "اللغة" } }[locale];
+  const labels: Record<string, string> = { Dashboard: copy.dashboard, Products: copy.products, Categories: copy.categories, Orders: copy.orders, Reservations: copy.reservations, Messages: copy.messages, Testimonials: copy.testimonials, Gallery: copy.gallery, Homepage: copy.homepage, Customers: copy.customers, Settings: copy.settings };
+  const changeLocale = (value: "ar" | "en" | "fr") => { setLocale(value); window.localStorage.setItem("dawdi_admin_locale", value); document.documentElement.lang = value; document.documentElement.dir = value === "ar" ? "rtl" : "ltr"; };
 
   return (
     <div className="min-h-screen flex bg-zinc-950 text-zinc-100">
@@ -94,7 +100,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="leading-tight">
             <p className="font-display text-sm font-bold tracking-tight">DAWDI CAFE</p>
-            <p className="text-[11px] text-zinc-400">Admin Panel</p>
+            <p className="text-[11px] text-zinc-400">{copy.admin}</p>
           </div>
         </div>
 
@@ -103,7 +109,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             const active = item.exact
               ? pathname === item.href
               : pathname?.startsWith(item.href);
-            return <NavLink key={item.href} {...item} active={active} />;
+            return <NavLink key={item.href} {...item} label={labels[item.label] ?? item.label} active={active} />;
           })}
         </nav>
 
@@ -127,9 +133,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <p className="font-display text-sm font-bold tracking-tight">DAWDI CAFE</p>
           <p className="text-[11px] text-zinc-400">Admin Panel</p>
         </div>
-        <div className="ml-auto">
-          <SignOutButton compact />
-        </div>
+        <div className="ml-auto flex items-center gap-2"><label className="sr-only" htmlFor="admin-locale">{copy.language}</label><select id="admin-locale" value={locale} onChange={(e) => changeLocale(e.target.value as "ar" | "en" | "fr")} className="max-w-[88px] rounded-lg border border-white/10 bg-zinc-900 px-2 py-2 text-xs text-white"><option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option></select><SignOutButton compact /></div>
       </div>
 
       <nav className="fixed inset-x-0 top-14 sm:top-16 z-30 flex gap-1.5 overflow-x-auto border-b border-white/10 bg-zinc-950 px-2.5 sm:px-3 py-2 lg:hidden scrollbar-hide overscroll-x-contain">
@@ -149,7 +153,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <item.icon className="h-3.5 w-3.5" />
-              {item.label}
+              {labels[item.label] ?? item.label}
             </Link>
           );
         })}
