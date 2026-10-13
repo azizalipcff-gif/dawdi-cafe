@@ -104,8 +104,8 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="min-w-0 space-y-5 sm:space-y-8">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight text-white">
             Dashboard
@@ -123,14 +123,14 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Link
               key={stat.label}
               href={stat.href}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-brand/40 hover:bg-white/[0.05]"
+              className="group min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-5 transition hover:border-brand/40 hover:bg-white/[0.05]"
             >
               <div className="flex items-center justify-between">
                 <div className="rounded-xl bg-brand/15 p-2.5 text-brand">
@@ -138,7 +138,7 @@ export default function DashboardPage() {
                 </div>
                 <ArrowUpRight className="h-4 w-4 text-zinc-600 transition group-hover:text-brand" />
               </div>
-              <p className="mt-4 font-display text-3xl font-bold text-white">{stat.value}</p>
+              <p className="mt-3 sm:mt-4 font-display text-2xl sm:text-3xl font-bold text-white">{stat.value}</p>
               <p className="mt-1 text-sm font-medium text-zinc-300">{stat.label}</p>
               <p className="text-xs text-zinc-500">{stat.sub}</p>
             </Link>
@@ -146,9 +146,9 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
         {/* Availability */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <p className="text-sm font-medium text-zinc-400">Product Availability</p>
           <div className="mt-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -193,7 +193,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent orders */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 lg:col-span-1">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 lg:col-span-1">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg font-semibold text-white">Recent Orders</h2>
             <Link href="/dawdi-admin-7K9X/orders" className="text-sm text-brand hover:text-brand-light">
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             {recentOrders.map((order) => (
               <div
                 key={order.id}
-                className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
+                className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 sm:px-4 py-3"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-zinc-200">
@@ -218,7 +218,7 @@ export default function DashboardPage() {
                     {order.items.reduce((n, i) => n + i.quantity, 0)} items
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-3">
+                <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
                   <span className="text-sm font-semibold text-white">
                     {formatCurrency(Number(order.total))}
                   </span>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
             {activity.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
+                className="flex min-w-0 items-start gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-3 sm:px-4 py-3"
               >
                 <div
                   className={cn(
@@ -264,7 +264,7 @@ export default function DashboardPage() {
                   <p className="truncate text-sm font-medium text-zinc-200">{item.title}</p>
                   <p className="truncate text-xs text-zinc-500">{item.detail}</p>
                 </div>
-                <span className="shrink-0 text-[11px] text-zinc-500">
+                <span className="shrink-0 text-[10px] sm:text-[11px] text-zinc-500">
                   {formatDateTime(item.when)}
                 </span>
               </div>
