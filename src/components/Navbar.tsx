@@ -50,7 +50,7 @@ export function Navbar({ settings }: NavbarProps) {
     <header
       className={cn(
         // Keep the navigation controls readable over every hero/image color.
-        "fixed top-0 inset-x-0 z-50 bg-white/95 dark:bg-dark/95 backdrop-blur-xl border-b border-black/5 dark:border-white/10 shadow-lg shadow-black/5 transition-all duration-300",
+        "fixed top-0 inset-x-0 z-50 bg-white dark:bg-dark border-b border-black/5 dark:border-white/10 shadow-lg shadow-black/5 transition-all duration-300",
         scrolled ? "py-0" : "py-0"
       )}
     >
