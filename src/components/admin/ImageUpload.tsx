@@ -94,7 +94,7 @@ export function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/svg+xml"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
