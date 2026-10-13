@@ -132,7 +132,7 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
                   )}
                   <div className="w-12 h-0.5 bg-brand mx-auto mt-3 rounded-full" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-5xl mx-auto">
                   {items.map((item, i) => (
                     <motion.div
                       key={item.id}
@@ -140,10 +140,10 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.05 }}
-                      className="group p-4 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 flex flex-col overflow-hidden"
+                      className="group p-3 sm:p-4 rounded-xl bg-card border border-border hover:border-brand/20 transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 flex flex-col overflow-hidden min-w-0"
                     >
                       <Link href={link(`/product/${item.id}`)} className="block">
-                        <div className="relative -mx-4 -mt-4 mb-3">
+                        <div className="relative -mx-3 -mt-3 sm:-mx-4 sm:-mt-4 mb-3">
                   <div className="relative aspect-[4/3] w-full">
                     <ProductImage
                       src={item.image_url}
@@ -160,21 +160,21 @@ export function MenuPageClient({ products, categories, whatsappNumber }: MenuPag
                             )}
                           </div>
                         </div>
-                        <div className="flex items-start justify-between gap-4 flex-1">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4 flex-1 min-w-0">
                           <div className="flex-1">
-                            <h3 className="font-display text-base font-semibold text-foreground group-hover:text-brand transition-colors">{item.name}</h3>
+                            <h3 className="font-display text-sm sm:text-base font-semibold text-foreground group-hover:text-brand transition-colors break-words">{item.name}</h3>
                             <p className="text-sm text-muted mt-1 leading-relaxed line-clamp-2">{item.description}</p>
                           </div>
-                          <span className="text-brand font-semibold text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
+                          <span className="text-brand font-semibold text-xs sm:text-sm whitespace-nowrap font-mono">{formatCurrency(item.price)}</span>
                         </div>
                       </Link>
-                      <div className="flex items-center justify-end gap-2 mt-3">
+                      <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-2 mt-3">
                         <a
                           href={buildItemWhatsAppHref(item)}
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-disabled={!item.is_available}
-                          className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
+                          className={`inline-flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-medium px-2 sm:px-3 py-1.5 rounded-full transition-colors ${
                             item.is_available
                               ? "bg-green-600/10 text-green-600 hover:bg-green-600 hover:text-white"
                               : "bg-muted/30 text-muted pointer-events-none opacity-50"
