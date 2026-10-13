@@ -49,10 +49,9 @@ export function Navbar({ settings }: NavbarProps) {
   return (
     <header
       className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-500",
-        scrolled
-          ? "bg-white/80 dark:bg-dark/80 glass shadow-lg shadow-black/5"
-          : "bg-transparent"
+        // Keep the navigation controls readable over every hero/image color.
+        "fixed top-0 inset-x-0 z-50 bg-white/95 dark:bg-dark/95 backdrop-blur-xl border-b border-black/5 dark:border-white/10 shadow-lg shadow-black/5 transition-all duration-300",
+        scrolled ? "py-0" : "py-0"
       )}
     >
       <div className="container-custom flex items-center justify-between h-16 md:h-20">
