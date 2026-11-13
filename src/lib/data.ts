@@ -249,16 +249,8 @@ export async function getBusinessStatistics(
     }
   }
 
-  // Sensible defaults: if no rows defined, return a minimal set so frontend
-  // doesn't break on empty DB.
-  if (rows.length === 0) {
-    return [
-      { id: "", key: "daily_customers", label: "Daily Customers", value: "200+", description: null, use_real_count: false, sort_order: 0, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { id: "", key: "products", label: "Products", value: "50+", description: null, use_real_count: false, sort_order: 1, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { id: "", key: "years_experience", label: "Years of Experience", value: "4+", description: null, use_real_count: false, sort_order: 2, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { id: "", key: "quality_care", label: "Quality & Care", value: "100%", description: null, use_real_count: false, sort_order: 3, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    ];
-  }
+  // Do not invent business metrics for a new store with no verified sales history.
+  if (rows.length === 0) return [];
 
   return rows.map((r) => ({ ...r }));
 }
