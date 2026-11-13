@@ -5,9 +5,9 @@ import { ShoppingBag } from "lucide-react";
 import { ADMIN_PATH } from "@/lib/constants";
 import type { SiteSettings } from "@/lib/types";
 
-export function SiteChrome({ children }: { settings?: Partial<SiteSettings>; children: React.ReactNode }) {
+export function SiteChrome({ settings: _settings, children }: { settings?: Partial<SiteSettings>; children: React.ReactNode }) {
  const pathname=usePathname();
- if(pathname?.startsWith(ADMIN_PATH)) return <>{children}</>;
+ if(pathname?.startsWith(ADMIN_PATH) || pathname?.startsWith("/momia-admin")) return <>{children}</>;
  const locale=pathname?.split("/")[1]||"ar";
  const ar=locale==="ar";
  return <>
