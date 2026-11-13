@@ -8,6 +8,10 @@ function getCookieLocale(request: NextRequest): Locale {
 }
 export async function proxy(request: NextRequest) {
   const {pathname}=request.nextUrl;
+  if(request.nextUrl.hostname==="dawdi-cafe.vercel.app") {
+    const target=new URL(pathname+request.nextUrl.search,"https://momia-stor.vercel.app");
+    return NextResponse.redirect(target,308);
+  }
   if(pathname.startsWith("/momia-admin")) {
     const target=request.nextUrl.clone();
     target.pathname=pathname.replace(/^\/momia-admin/,"/dawdi-admin-7K9X");
