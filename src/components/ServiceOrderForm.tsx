@@ -16,7 +16,7 @@ export function ServiceOrderForm({ product, locale }: { product: Product; locale
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
-  const [orderId, setOrderId] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const submit = (event: React.FormEvent) => {
@@ -33,11 +33,11 @@ export function ServiceOrderForm({ product, locale }: { product: Product; locale
         notes,
       });
       if (!result.ok) { setError(result.error); return; }
-      setOrderId(result.orderId);
+      setSubmitted(true);
     });
   };
 
-  const close = () => { setOpen(false); setError(""); setOrderId(""); };
+  const close = () => { setOpen(false); setError(""); setSubmitted(false); };
   return <>
     <button type="button" onClick={() => setOpen(true)} disabled={!product.is_available} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#168BFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
       <ShoppingCart size={17}/>{ar ? "اطلب دابا" : fr ? "Commander" : "Order now"}
@@ -45,7 +45,7 @@ export function ServiceOrderForm({ product, locale }: { product: Product; locale
     {open && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm" onClick={close}>
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0B1424] p-5 shadow-2xl sm:p-6" dir={ar?"rtl":"ltr"} onClick={e=>e.stopPropagation()}>
         <div className="mb-5 flex items-center justify-between gap-3"><div><h3 className="text-lg font-black text-white">{ar?"طلب الخدمة":fr?"Commander le service":"Order service"}</h3><p className="mt-1 text-sm text-slate-400">{product.name}</p></div><button type="button" onClick={close} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white" aria-label="Close"><X size={19}/></button></div>
-        {orderId ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto mb-3 text-[#00D6C9]" size={42}/><h4 className="text-xl font-bold text-white">{ar?"توصلنا بالطلب ديالك":fr?"Commande reçue":"Order received"}</h4><p className="mt-2 text-sm text-slate-400">{ar?"رقم الطلب:":fr?"Numéro de commande :":"Order ID:"} <span className="font-mono text-[#00D6C9]">{orderId.slice(0,8).toUpperCase()}</span></p><p className="mt-2 text-xs text-slate-500">{ar?"غادي يتراجع الطلب من طرف الإدارة قبل التأكيد.":fr?"Votre commande sera vérifiée par l’équipe avant confirmation.":"Your order will be reviewed by the store team before confirmation."}</p><button type="button" onClick={close} className="mt-6 rounded-xl bg-[#168BFF] px-5 py-2.5 text-sm font-bold text-white">{ar?"إغلاق":fr?"Fermer":"Close"}</button></div> : <form onSubmit={submit} className="space-y-3">
+        {submitted ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto mb-3 text-[#00D6C9]" size={42}/><h4 className="text-xl font-bold text-white">{ar?"توصلنا بالطلب ديالك":fr?"Commande reçue":"Order received"}</h4><p className="mt-2 text-xs text-slate-500">{ar?"غادي يتراجع الطلب من طرف الإدارة قبل التأكيد.":fr?"Votre commande sera vérifiée par l’équipe avant confirmation.":"Your order will be reviewed by the store team before confirmation."}</p><button type="button" onClick={close} className="mt-6 rounded-xl bg-[#168BFF] px-5 py-2.5 text-sm font-bold text-white">{ar?"إغلاق":fr?"Fermer":"Close"}</button></div> : <form onSubmit={submit} className="space-y-3">
           <label className="block text-xs font-semibold text-slate-300">{ar?"الاسم الكامل":fr?"Nom complet":"Full name"}<input required minLength={2} value={name} onChange={e=>setName(e.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#168BFF]" placeholder={ar?"الاسم ديالك":fr?"Votre nom":"Your name"}/></label>
           <label className="block text-xs font-semibold text-slate-300">{ar?"رقم الهاتف":fr?"Téléphone":"Phone number"}<input required minLength={7} value={phone} onChange={e=>setPhone(e.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#168BFF]" placeholder="+212..."/></label>
           <label className="block text-xs font-semibold text-slate-300">{ar?"اسم الحساب أو Player ID":fr?"Nom d’utilisateur ou ID joueur":"Username or Player ID"}<input value={target} onChange={e=>setTarget(e.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#168BFF]" placeholder={ar?"اسم المستخدم أو UID":fr?"Nom d’utilisateur / UID":"Username / UID"}/></label>
