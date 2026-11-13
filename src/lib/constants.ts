@@ -1,71 +1,33 @@
-export const SITE_NAME = "DAWDI CAFE";
-export const SITE_TAGLINE = "Coffee for the Road";
-export const SITE_DESCRIPTION =
-  "Premium coffee, crêpes, snacks and quality drinks in Morocco.";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
-// Admin panel route. All admin pages live under this path.
+export const SITE_NAME = "MOMIA STOR";
+export const SITE_TAGLINE = "Your Digital Partner";
+export const SITE_DESCRIPTION = "MOMIA STOR — social media growth, gaming top-ups and digital services.";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://momiastor.com";
 export const ADMIN_PATH = "/dawdi-admin-7K9X";
-
-// Admin login page (excluded from the protected admin layout).
 export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
-
-// Supabase Storage bucket used for all uploaded images (products, gallery,
-// hero, settings, etc.). Single source of truth — keep every storage.from()
-// call in sync with this name.
 export const STORAGE_BUCKET = "images";
-
-// Defaults — overridden by the `settings` table once Supabase is connected.
 export const DEFAULT_SETTINGS = {
   cafe: {
-    name: "DAWDI CAFE",
-    tagline: "Coffee for the Road",
-    description: "Premium coffee, crêpes, snacks and quality drinks in Morocco.",
+    name: "MOMIA STOR",
+    tagline: "Your Digital Partner",
+    description: SITE_DESCRIPTION,
     logo_url: "/logo/logo.png",
     favicon: "/logo/logo.png",
     hero_image: "/logo/logo.png",
   },
-  contact: {
-    phone: "+212 656480972",
-    whatsapp: "212656480972",
-    email: "contact@dawdicafe.com",
-    instagram: "https://www.instagram.com/cafe_dawdi/",
-    facebook: "https://www.facebook.com/",
-    tiktok: "https://www.tiktok.com/",
-    maps_url: "https://maps.app.goo.gl/z2hZuQ2UtCsZoZDGA",
-    address: "Morocco",
-  },
-  hours: {
-    weekdays: "8:00 AM - 11:00 PM",
-    weekends: "9:00 AM - 12:00 AM",
-  },
-  seo: {
-    title: "DAWDI CAFE — Coffee for the Road",
-    description: "Premium coffee, crêpes, snacks and quality drinks in Morocco.",
-    keywords: "coffee, cafe, morocco, crêpes, dawdi, coffee shop, maroc",
-    og_image: "/logo/logo.png",
-  },
-  design: {
-    primary_color: "#ff6b00",
-  },
-  footer: {
-    about:
-      "Premium coffee, crêpes, snacks and quality drinks. Fresh, fast, and friendly service in Morocco.",
-    copyright: "© {year} DAWDI CAFE. All rights reserved.",
-  },
-} as const;
-
+  contact: { phone: "", whatsapp: "", email: "", instagram: "", facebook: "", tiktok: "", maps_url: "", address: "Morocco" },
+  hours: { weekdays: "Always online", weekends: "Always online" },
+  seo: { title: "MOMIA STOR — Your Digital Partner", description: SITE_DESCRIPTION, keywords: "social media, followers, likes, gaming top up, Free Fire, digital services", og_image: "/logo/logo.png" },
+  design: { primary_color: "#168BFF" },
+  footer: { about: SITE_DESCRIPTION, copyright: "© {year} MOMIA STOR. All rights reserved." },
+};
 export const NAV_ITEMS = [
   { label: "Home", href: "/" },
-  { label: "Menu", href: "/menu" },
-  { label: "About", href: "/about" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Contact", href: "/contact" },
+  { label: "Services", href: "/#services" },
+  { label: "How it works", href: "/#how" },
 ] as const;
-
-export const PHONE = DEFAULT_SETTINGS.contact.phone;
-export const WHATSAPP_NUMBER = DEFAULT_SETTINGS.contact.whatsapp;
-export const INSTAGRAM_URL = DEFAULT_SETTINGS.contact.instagram;
-export const GOOGLE_MAPS_URL = DEFAULT_SETTINGS.contact.maps_url;
-export const ADDRESS = DEFAULT_SETTINGS.contact.address;
+export const PHONE = "";
+export const WHATSAPP_NUMBER = "";
+export const INSTAGRAM_URL = "";
+export const GOOGLE_MAPS_URL = "";
+export const ADDRESS = "Morocco";
 export const WORKING_HOURS = DEFAULT_SETTINGS.hours;
