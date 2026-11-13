@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "DAWDI CAFE",
+    name: "MOMIA STOR",
     short_name: "DAWDI",
     description: "Premium coffee, crêpes, snacks and quality drinks in Morocco.",
     start_url: "/",
