@@ -113,6 +113,12 @@ export interface Order {
   total: number;
   notes: string | null;
   status: OrderStatus;
+  target_username?: string | null;
+  target_link?: string | null;
+  customer_email?: string | null;
+  payment_method?: string | null;
+  payment_status?: string;
+  delivery_details?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
