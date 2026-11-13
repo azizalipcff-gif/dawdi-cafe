@@ -244,6 +244,15 @@ export function validateProduct(
   const status = statusField(raw.status, { field: "Status", requireAll });
   const sort_order = numField(raw.sort_order, { field: "Sort order", integer: true, min: 0, max: 1_000_000, requireAll });
   const translations = objectField(raw.translations, { field: "Translations", requireAll });
+  const service_type = strField(raw.service_type, { field: "Service type", max: 60, requireAll });
+  const platform = strField(raw.platform, { field: "Platform", max: 100, requireAll });
+  const package_quantity = numField(raw.package_quantity, { field: "Package quantity", integer: true, min: 1, max: 10000000, requireAll });
+  const min_quantity = numField(raw.min_quantity, { field: "Minimum quantity", integer: true, min: 1, max: 10000000, requireAll });
+  const max_quantity = numField(raw.max_quantity, { field: "Maximum quantity", integer: true, min: 1, max: 10000000, requireAll });
+  const delivery_eta = strField(raw.delivery_eta, { field: "Delivery estimate", max: 150, requireAll });
+  const requires_username = boolField(raw.requires_username, { field: "Requires username or player ID" });
+  const customer_instructions = strField(raw.customer_instructions, { field: "Customer instructions", max: 1500, requireAll });
+  const service_details = objectField(raw.service_details, { field: "Service details", requireAll });
 
   const res = build([
     ["name", name as FieldResult<unknown>],
@@ -259,6 +268,15 @@ export function validateProduct(
     ["status", status as FieldResult<unknown>],
     ["sort_order", sort_order as FieldResult<unknown>],
     ["translations", translations as FieldResult<unknown>],
+    ["service_type", service_type as FieldResult<unknown>],
+    ["platform", platform as FieldResult<unknown>],
+    ["package_quantity", package_quantity as FieldResult<unknown>],
+    ["min_quantity", min_quantity as FieldResult<unknown>],
+    ["max_quantity", max_quantity as FieldResult<unknown>],
+    ["delivery_eta", delivery_eta as FieldResult<unknown>],
+    ["requires_username", requires_username as FieldResult<unknown>],
+    ["customer_instructions", customer_instructions as FieldResult<unknown>],
+    ["service_details", service_details as FieldResult<unknown>],
   ]);
   if (!res.ok) return res;
   // Publishing a product makes it publicly visible, so require a complete,
@@ -279,6 +297,7 @@ export function validateProduct(
   }
   // Ensure jsonb columns always have a value on create.
   if (res.value.translations === undefined) res.value.translations = {};
+  if (res.value.service_details === undefined) res.value.service_details = {};
   return res;
 }
 
