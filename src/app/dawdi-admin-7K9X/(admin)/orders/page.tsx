@@ -28,7 +28,9 @@ export default function OrdersPage() {
       (o) =>
         o.id.toLowerCase().includes(q) ||
         o.customer_name.toLowerCase().includes(q) ||
-        o.customer_phone.toLowerCase().includes(q)
+        o.customer_phone.toLowerCase().includes(q) ||
+        (o.target_username ?? "").toLowerCase().includes(q) ||
+        (o.target_link ?? "").toLowerCase().includes(q)
     );
   }, [orders, query]);
 
@@ -97,16 +99,16 @@ export default function OrdersPage() {
                 </td>
                 <td className="px-4 py-3">
                   <p className="font-medium text-zinc-100">{order.customer_name}</p>
-                  <p className="text-xs text-zinc-500">{order.customer_phone}</p>
+                  <p className="text-xs text-zinc-500">{order.customer_phone}</p>\n                  {order.target_username && <p className="mt-1 text-xs text-[#00D6C9]">ID: {order.target_username}</p>}\n                  {order.target_link && <a href={order.target_link} target="_blank" rel="noreferrer" className="mt-1 block max-w-[180px] truncate text-xs text-blue-400 underline">Open profile</a>}
                 </td>
                 <td className="px-4 py-3 text-zinc-300">
                   {itemCount(order)} ·{" "}
                   <span className="text-xs text-zinc-500">
-                    {order.items.map((i) => i.name).join(", ")}
+                    {order.items.map((i) => i.name + " × " + i.quantity).join(", ")}\n                  {order.notes && <p className="mt-1 max-w-[240px] text-[11px] text-zinc-500">{order.notes}</p>}
                   </span>
                 </td>
                 <td className="px-4 py-3 font-semibold text-white">
-                  {formatCurrency(order.total)}
+                  {formatCurrency(order.total)}\n                  <p className="mt-1 text-[10px] uppercase text-zinc-500">{order.payment_status ?? "unpaid"}</p>
                 </td>
                 <td className="px-4 py-3">
                   <select
