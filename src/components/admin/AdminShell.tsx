@@ -6,17 +6,17 @@ import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/admin/actions/auth";
 
 const NAV_ITEMS = [
-  { href: "/dawdi-admin-7K9X", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/dawdi-admin-7K9X/products", label: "Services & Products", icon: Package, exact: false },
-  { href: "/dawdi-admin-7K9X/categories", label: "Categories", icon: Tags, exact: false },
-  { href: "/dawdi-admin-7K9X/orders", label: "Orders", icon: ShoppingCart, exact: false },
-  { href: "/dawdi-admin-7K9X/reservations", label: "Requests", icon: CalendarClock, exact: false },
-  { href: "/dawdi-admin-7K9X/messages", label: "Messages", icon: MessageSquare, exact: false },
-  { href: "/dawdi-admin-7K9X/testimonials", label: "Reviews", icon: Star, exact: false },
-  { href: "/dawdi-admin-7K9X/gallery", label: "Media", icon: Images, exact: false },
-  { href: "/dawdi-admin-7K9X/homepage", label: "Storefront", icon: Home, exact: false },
-  { href: "/dawdi-admin-7K9X/customers", label: "Customers", icon: Users, exact: false },
-  { href: "/dawdi-admin-7K9X/settings", label: "Settings", icon: Settings, exact: false },
+  { href: "/momia-admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/momia-admin/products", label: "Services & Products", icon: Package, exact: false },
+  { href: "/momia-admin/categories", label: "Categories", icon: Tags, exact: false },
+  { href: "/momia-admin/orders", label: "Orders", icon: ShoppingCart, exact: false },
+  { href: "/momia-admin/reservations", label: "Requests", icon: CalendarClock, exact: false },
+  { href: "/momia-admin/messages", label: "Messages", icon: MessageSquare, exact: false },
+  { href: "/momia-admin/testimonials", label: "Reviews", icon: Star, exact: false },
+  { href: "/momia-admin/gallery", label: "Media", icon: Images, exact: false },
+  { href: "/momia-admin/homepage", label: "Storefront", icon: Home, exact: false },
+  { href: "/momia-admin/customers", label: "Customers", icon: Users, exact: false },
+  { href: "/momia-admin/settings", label: "Settings", icon: Settings, exact: false },
 ];
 function NavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: typeof LayoutDashboard; active: boolean }) {
   return <Link href={href} className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",active?"bg-[#168BFF] text-white shadow-lg shadow-blue-500/20":"text-zinc-400 hover:bg-white/5 hover:text-white")}><Icon className="h-4.5 w-4.5 shrink-0"/>{label}</Link>;
