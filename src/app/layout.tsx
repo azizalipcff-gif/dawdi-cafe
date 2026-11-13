@@ -3,7 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { SiteChrome } from "@/components/SiteChrome";
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, DEFAULT_SETTINGS } from "@/lib/constants";
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 import { getLocale } from "@/lib/i18n/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
@@ -23,7 +23,6 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   const dict = getDictionary(locale);
-  const settings = DEFAULT_SETTINGS;
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "OnlineStore",
@@ -34,6 +33,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }).replace(/</g, "\\u003c");
   return <html lang={locale} dir={getDir(locale)} suppressHydrationWarning><body className="min-h-screen flex flex-col bg-[#0B1424] text-white antialiased">
     <Script id="organization-jsonld" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{__html:jsonLd}}/>
-    <Providers><LocaleProvider locale={locale} dict={dict}><SiteChrome settings={settings}>{children}</SiteChrome></LocaleProvider></Providers>
+    <Providers><LocaleProvider locale={locale} dict={dict}><SiteChrome>{children}</SiteChrome></LocaleProvider></Providers>
   </body></html>;
 }
