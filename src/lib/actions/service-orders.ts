@@ -13,7 +13,7 @@ const orderSchema = z.object({
   notes: z.string().trim().max(1000).optional().default(""),
 });
 
-export async function submitServiceOrder(input: unknown): Promise<{ ok: true; orderId: string } | { ok: false; error: string }> {
+export async function submitServiceOrder(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
   const parsed = orderSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "راجع المعلومات المدخلة وحاول مرة أخرى." };
   const values = parsed.data;
@@ -30,7 +30,7 @@ export async function submitServiceOrder(input: unknown): Promise<{ ok: true; or
   const price = Number(product.price);
   if (!Number.isFinite(price) || price <= 0) return { ok: false, error: "ثمن الباقة غير صالح. تواصل مع الإدارة." };
   const total = Math.round(price * values.quantity * 100) / 100;
-  const { data: order, error } = await supabase.from("orders").insert({
+  const { error } = await supabase.from("orders").insert({
     customer_name: values.customerName,
     customer_phone: values.customerPhone,
     customer_email: null,
@@ -51,8 +51,8 @@ export async function submitServiceOrder(input: unknown): Promise<{ ok: true; or
       package_quantity: product.package_quantity || null,
       package_count: values.quantity,
     },
-  }).select("id").single();
+  });
 
-  if (error || !order) return { ok: false, error: "ما قدرناش نسجلو الطلب دابا. عاود المحاولة بعد قليل." };
-  return { ok: true, orderId: order.id };
+  if (error) return { ok: false, error: "ما قدرناش نسجلو الطلب دابا. عاود المحاولة بعد قليل." };
+  return { ok: true };
 }
