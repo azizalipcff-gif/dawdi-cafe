@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { toast } from "sonner";
-import { MessageCircle, Plus, Check } from "lucide-react";
+import { MessageCircle, Plus, Check, ShoppingBag } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/components/CartProvider";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
@@ -75,14 +74,6 @@ export function ProductActions({
 
 export function ProductImageFallback() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-muted/20 overflow-hidden">
-      <Image
-        src="/logo/logo.png"
-        alt="DAWDI CAFE"
-        width={200}
-        height={200}
-        className="h-full w-full object-contain p-6 opacity-80"
-      />
-    </div>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 overflow-hidden bg-[#0B1424] text-[#00D6C9]"><ShoppingBag className="h-10 w-10"/><span className="text-[10px] font-black tracking-[.2em] text-white">MOMIA STOR</span></div>
   );
 }
