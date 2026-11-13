@@ -26,6 +26,15 @@ export type ProductPatch = Partial<
     | "status"
     | "sort_order"
     | "translations"
+    | "service_type"
+    | "platform"
+    | "package_quantity"
+    | "min_quantity"
+    | "max_quantity"
+    | "delivery_eta"
+    | "requires_username"
+    | "customer_instructions"
+    | "service_details"
   >
 >;
 
@@ -43,6 +52,15 @@ const PRODUCT_FIELDS = [
   "status",
   "sort_order",
   "translations",
+  "service_type",
+  "platform",
+  "package_quantity",
+  "min_quantity",
+  "max_quantity",
+  "delivery_eta",
+  "requires_username",
+  "customer_instructions",
+  "service_details",
 ] as const;
 
 export async function createProduct(
