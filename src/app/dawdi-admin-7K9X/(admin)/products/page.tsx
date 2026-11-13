@@ -38,6 +38,10 @@ interface ProductForm {
   is_available: boolean;
   is_featured: boolean;
   status: ProductStatus;
+  platform: string;
+  package_quantity: string;
+  delivery_eta: string;
+  requires_username: boolean;
 }
 
 const EMPTY_FORM: ProductForm = {
@@ -51,6 +55,10 @@ const EMPTY_FORM: ProductForm = {
   is_available: true,
   is_featured: false,
   status: "pending",
+  platform: "",
+  package_quantity: "",
+  delivery_eta: "",
+  requires_username: true,
 };
 
 const STATUS_OPTIONS: ProductStatus[] = [
@@ -114,6 +122,10 @@ export default function ProductsPage() {
       is_available: product.is_available,
       is_featured: product.is_featured,
       status: product.status,
+      platform: product.platform ?? "",
+      package_quantity: product.package_quantity ? String(product.package_quantity) : "",
+      delivery_eta: product.delivery_eta ?? "",
+      requires_username: product.requires_username ?? true,
     });
     setFormErrors({});
     setShowForm(true);
@@ -160,6 +172,11 @@ export default function ProductsPage() {
       is_featured: form.is_featured,
       status: form.status,
       sort_order: products.length + 1,
+      service_type: "digital",
+      platform: form.platform.trim() || null,
+      package_quantity: form.package_quantity.trim() ? Number(form.package_quantity) : null,
+      delivery_eta: form.delivery_eta.trim() || null,
+      requires_username: form.requires_username,
     };
 
     if (form.id) {
@@ -463,6 +480,22 @@ export default function ProductsPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Platform / Game</label>
+                  <input value={form.platform} onChange={(e) => setForm((f) => ({ ...f, platform: e.target.value }))} placeholder="Instagram, TikTok, Free Fire..." className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none focus:border-brand/60"/>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Quantity in package</label>
+                  <input value={form.package_quantity} onChange={(e) => setForm((f) => ({ ...f, package_quantity: e.target.value }))} type="number" min="1" step="1" placeholder="e.g. 1000" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none focus:border-brand/60"/>
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Estimated delivery</label>
+                  <input value={form.delivery_eta} onChange={(e) => setForm((f) => ({ ...f, delivery_eta: e.target.value }))} placeholder="e.g. 1–24 hours" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none focus:border-brand/60"/>
+                </div>
+                <div className="sm:col-span-2 flex items-center justify-between rounded-xl border border-white/10 px-4 py-3">
+                  <span className="text-sm text-zinc-300">Customer must provide username / player ID</span>
+                  <input type="checkbox" checked={form.requires_username} onChange={(e) => setForm((f) => ({ ...f, requires_username: e.target.checked }))} className="h-4 w-4 accent-[#168BFF]"/>
+                </div>
                 <div className="sm:col-span-2">
                   <label className="mb-1.5 block text-xs font-medium text-zinc-400">
                     Moderation status
