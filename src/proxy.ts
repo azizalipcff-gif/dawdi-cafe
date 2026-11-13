@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
   const {pathname}=request.nextUrl;
   if(pathname.startsWith("/momia-admin")) {
     const target=request.nextUrl.clone();
-    target.pathname=pathname.replace(/^\/momia-admin/,ADMIN_PATH);
+    target.pathname=pathname.replace(/^\/momia-admin/,"/dawdi-admin-7K9X");
     return NextResponse.rewrite(target);
   }
   if(pathname.startsWith(ADMIN_PATH)||pathname.startsWith("/api")) return NextResponse.next({request});
