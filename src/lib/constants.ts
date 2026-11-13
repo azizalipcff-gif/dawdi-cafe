@@ -1,7 +1,7 @@
 export const SITE_NAME = "MOMIA STOR";
 export const SITE_TAGLINE = "Your Digital Partner";
 export const SITE_DESCRIPTION = "MOMIA STOR — social media growth, gaming top-ups and digital services.";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://momiastor.com";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://dawdi-cafe.vercel.app";
 export const ADMIN_PATH = "/dawdi-admin-7K9X";
 export const ADMIN_LOGIN_PATH = `${ADMIN_PATH}/login`;
 export const STORAGE_BUCKET = "images";
