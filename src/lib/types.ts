@@ -56,6 +56,15 @@ export interface Product {
   updated_at: string;
   category?: Category | null;
   translations?: Translations | null;
+  service_type?: string;
+  platform?: string | null;
+  package_quantity?: number | null;
+  min_quantity?: number | null;
+  max_quantity?: number | null;
+  delivery_eta?: string | null;
+  requires_username?: boolean;
+  customer_instructions?: string | null;
+  service_details?: Record<string, unknown>;
 }
 
 export interface GalleryItem {
