@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Coffee } from "lucide-react";
+import { AlertCircle, ShoppingBag } from "lucide-react";
 import { adminLogin } from "@/lib/admin/actions/auth";
 import { ADMIN_PATH } from "@/lib/constants";
 
@@ -30,7 +30,7 @@ export function AdminLoginClient() {
   };
 
   return (
-    <main className="relative min-h-screen flex items-center justify-center bg-zinc-950 overflow-hidden p-6">
+    <main className="relative min-h-screen flex items-center justify-center bg-[#0B1424] overflow-hidden p-6">
       {/* Ambient glass background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-brand/20 blur-3xl" />
@@ -53,7 +53,7 @@ export function AdminLoginClient() {
               className="mb-6"
             >
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/10 border border-white/10 flex items-center justify-center">
-                <Coffee className="w-8 h-8 text-brand" />
+                <ShoppingBag className="w-8 h-8 text-brand" />
               </div>
             </motion.div>
 
@@ -65,7 +65,7 @@ export function AdminLoginClient() {
             >
               Admin Panel
             </motion.h1>
-            <p className="mt-1 text-sm text-zinc-500">Sign in to manage DAWDI CAFE</p>
+            <p className="mt-1 text-sm text-zinc-500">Sign in to manage MOMIA STOR</p>
 
             <motion.form
               onSubmit={handleSubmit}
