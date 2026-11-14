@@ -28,9 +28,9 @@ export function Navbar({ settings }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   const siteName = settings?.cafe?.name || SITE_NAME;
-  const tagline = settings?.cafe?.tagline || "Coffee for the Road";
+  const tagline = settings?.cafe?.tagline || "Your Digital Partner";
   const phone = settings?.contact?.phone || PHONE;
-  const logo = settings?.cafe?.logo_url || "/logo/logo.png";
+  const logo = settings?.cafe?.logo_url || "";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
