@@ -20,13 +20,7 @@ export async function proxy(request: NextRequest) {
   if(pathname.startsWith(ADMIN_PATH)||pathname.startsWith("/api")) return NextResponse.next({request});
   const hasLocale=LOCALE_PREFIXES.some(p=>pathname===`/${p}`||pathname.startsWith(`/${p}/`));
   if(hasLocale) {
-    const parts=pathname.split("/").filter(Boolean);
-    const locale=parts[0] as Locale;
-    if(parts.length>1) {
-      const target=request.nextUrl.clone();
-      target.pathname=`/${locale}`;
-      return NextResponse.redirect(target,307);
-    }
+    const locale=pathname.split("/").filter(Boolean)[0] as Locale;
     const cookieLocale=getCookieLocale(request);
     if(locale!==cookieLocale) {
       const response=NextResponse.next({request});
