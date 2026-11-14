@@ -30,7 +30,7 @@ export function ProductActions({
         disabled={!available}
         onClick={() => {
           addItem(product);
-          toast.success(fmt(dict.cart.added, { name: product.name }));
+          toast.success(`${product.name} added to cart`);
         }}
         className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
           available
