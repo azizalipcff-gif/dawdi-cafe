@@ -1,4 +1,4 @@
-import { ArrowUpRight, Gamepad2, Instagram, ShieldCheck, ShoppingBag, Sparkles, TrendingUp, Users, Zap, Package } from "lucide-react";
+import { ArrowUpRight, Gamepad2, Instagram, ShieldCheck, ShoppingBag, TrendingUp, Users, Zap, Package } from "lucide-react";
 import { getProducts } from "@/lib/data";
 import { ServiceOrderForm } from "@/components/ServiceOrderForm";
 import type { Locale } from "@/lib/i18n/config";
@@ -32,8 +32,8 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_78%_20%,rgba(22,139,255,.26),transparent_45%),radial-gradient(ellipse_at_12%_85%,rgba(0,214,201,.13),transparent_42%)]"/>
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:py-28">
         <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#168BFF]/35 bg-[#168BFF]/10 px-4 py-2 text-xs font-bold tracking-wide text-blue-300"><Sparkles size={15}/>{copy.eyebrow}</span>
-          <h1 className="mt-7 text-6xl font-black leading-[1.02] tracking-tight text-white sm:text-7xl">MOMIA <span className="block bg-gradient-to-r from-[#168BFF] to-[#00D6C9] bg-clip-text text-transparent">STOR</span></h1>
+          <span className="mb-2 inline-flex items-center gap-3 text-[11px] font-semibold tracking-[.24em] text-[#00D6C9]"><span className="h-px w-8 bg-[#00D6C9]" />{copy.eyebrow}</span>
+          <h1 className="mt-7 text-6xl font-extrabold leading-[.98] tracking-[-.06em] text-white sm:text-7xl">MOMIA <span className="text-[#168BFF]">STOR</span></h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">{copy.intro}</p>
           <div className="mt-9 flex flex-wrap gap-3"><a href="#services" className="inline-flex items-center gap-2 rounded-xl bg-[#168BFF] px-6 py-3.5 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5 hover:bg-blue-500">{copy.explore}<ArrowUpRight size={18}/></a><a href="#how" className="rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10">{copy.process}</a></div>
           <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400"><span className="flex items-center gap-2"><ShieldCheck size={17} className="text-[#00D6C9]"/>{ar?"تفاصيل واضحة قبل الطلب":fr?"Des détails clairs avant la commande":"Clear details before ordering"}</span><span className="flex items-center gap-2"><ShoppingBag size={17} className="text-[#00D6C9]"/>{ar?"خدمات متنوعة":fr?"Plusieurs catégories de services":"Multiple service categories"}</span></div>
