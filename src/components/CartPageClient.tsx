@@ -14,15 +14,12 @@ import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { cn, formatCurrency, buildWhatsAppHref } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/constants";
 
-type OrderType = "pickup" | "delivery";
-
 export function CartPageClient({ whatsappNumber }: { whatsappNumber: string }) {
   const { dict, link } = useI18n();
   const { items, updateQuantity, removeItem, total, count } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [orderType, setOrderType] = useState<OrderType>("pickup");
   const [submitting, setSubmitting] = useState(false);
 
   const handleCheckout = async (e: React.FormEvent) => {
@@ -38,8 +35,6 @@ export function CartPageClient({ whatsappNumber }: { whatsappNumber: string }) {
 
     setSubmitting(true);
     try {
-      const orderTypeLabel = orderType === "delivery" ? dict.cart.delivery : dict.cart.pickup;
-
       const lines = items
         .map((item, i) => {
           const lineTotal = item.price * item.quantity;
@@ -51,10 +46,10 @@ export function CartPageClient({ whatsappNumber }: { whatsappNumber: string }) {
       const noteSection = trimmedNotes ? `\n\n📝 Note:\n${trimmedNotes}` : "";
 
       const message =
-        `☕ New Order — ${SITE_NAME}\n\n` +
+        `🛍️ New Purchase — ${SITE_NAME}\n\n` +
         `👤 Customer: ${trimmedName}\n` +
         `📞 Phone: ${trimmedPhone}\n\n` +
-        `📦 Order type: ${orderTypeLabel}\n\n` +
+        
         `🛒 Order:\n\n${lines}\n\n` +
         `💰 Total: ${formatCurrency(total)}` +
         noteSection;
@@ -164,32 +159,6 @@ export function CartPageClient({ whatsappNumber }: { whatsappNumber: string }) {
               <label className="text-sm font-medium text-foreground block mb-1.5">{dict.cart.notes}</label>
               <Textarea placeholder={dict.cart.notesPlaceholder} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
-            <fieldset className="space-y-2">
-              <legend className="text-sm font-medium text-foreground block mb-1.5">{dict.cart.orderType}</legend>
-              <div className="grid grid-cols-2 gap-2">
-                {(["pickup", "delivery"] as const).map((type) => (
-                  <label
-                    key={type}
-                    className={cn(
-                      "cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-medium transition-colors",
-                      orderType === type
-                        ? "border-brand bg-brand/10 text-brand"
-                        : "border-border text-muted hover:border-brand/40"
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name="orderType"
-                      value={type}
-                      checked={orderType === type}
-                      onChange={() => setOrderType(type)}
-                      className="sr-only"
-                    />
-                    {type === "delivery" ? dict.cart.delivery : dict.cart.pickup}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
             <div className="border-t border-border pt-4 space-y-2">
               <div className="flex justify-between text-sm text-muted">
                 <span>{dict.cart.items} ({count})</span>
