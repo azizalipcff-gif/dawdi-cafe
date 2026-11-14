@@ -1,39 +1,47 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Tags, ShoppingCart, Users, Settings, Images, Home, ShoppingBag, LogOut, CalendarClock, MessageSquare, Star } from "lucide-react";
+import { LayoutDashboard, Package, Tags, ShoppingCart, Settings, ShoppingBag, LogOut, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/admin/actions/auth";
 
 const NAV_ITEMS = [
-  { href: "/momia-admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/momia-admin/products", label: "Services & Products", icon: Package, exact: false },
+  { href: "/momia-admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/momia-admin/products", label: "Products & Packages", icon: Package, exact: false },
   { href: "/momia-admin/categories", label: "Categories", icon: Tags, exact: false },
   { href: "/momia-admin/orders", label: "Orders", icon: ShoppingCart, exact: false },
-  { href: "/momia-admin/reservations", label: "Requests", icon: CalendarClock, exact: false },
-  { href: "/momia-admin/messages", label: "Messages", icon: MessageSquare, exact: false },
-  { href: "/momia-admin/testimonials", label: "Reviews", icon: Star, exact: false },
-  { href: "/momia-admin/gallery", label: "Media", icon: Images, exact: false },
-  { href: "/momia-admin/homepage", label: "Storefront", icon: Home, exact: false },
-  { href: "/momia-admin/customers", label: "Customers", icon: Users, exact: false },
-  { href: "/momia-admin/settings", label: "Settings", icon: Settings, exact: false },
+  { href: "/momia-admin/settings", label: "Store settings", icon: Settings, exact: false },
 ];
-function NavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: typeof LayoutDashboard; active: boolean }) {
-  return <Link href={href} className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",active?"bg-[#168BFF] text-white shadow-lg shadow-blue-500/20":"text-zinc-400 hover:bg-white/5 hover:text-white")}><Icon className="h-4.5 w-4.5 shrink-0"/>{label}</Link>;
+
+function SignOutButton({ compact = false }: { compact?: boolean }) {
+  return <form action={signOut}><button type="submit" aria-label="Sign out" className={cn("flex items-center gap-3 rounded-xl text-sm font-medium text-zinc-400 transition hover:bg-red-500/10 hover:text-red-400", compact ? "h-10 w-10 justify-center border border-white/10" : "w-full px-3 py-3")}><LogOut className="h-4 w-4" />{!compact && "Sign out"}</button></form>;
 }
-function SignOutButton({ compact=false }: { compact?: boolean }) {
-  return <form action={signOut}><button type="submit" aria-label="Sign out" className={cn("flex items-center gap-3 rounded-xl text-sm font-medium text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400",compact?"h-9 w-9 items-center justify-center border border-white/10 px-0 py-0":"w-full px-3 py-2.5")}><LogOut className="h-4.5 w-4.5 shrink-0"/>{!compact&&"Sign out"}</button></form>;
-}
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
- const pathname=usePathname();
- return <div className="min-h-screen flex bg-[#0B1424] text-zinc-100">
-  <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/10 bg-[#08111f] lg:flex">
-   <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#168BFF] to-[#00D6C9] text-[#071321]"><ShoppingBag className="h-5 w-5"/></div><div className="leading-tight"><p className="text-sm font-black tracking-wider text-white">MOMIA STOR</p><p className="text-[11px] text-zinc-400">Store Administration</p></div></div>
-   <nav className="flex-1 space-y-1 overflow-y-auto p-3">{NAV_ITEMS.map(item=>{const active=item.exact?pathname===item.href:pathname?.startsWith(item.href);return <NavLink key={item.href} {...item} active={active}/>})}</nav>
-   <div className="space-y-1 border-t border-white/10 p-3"><SignOutButton/><Link href="/ar" className="block rounded-xl px-3 py-2.5 text-center text-xs text-zinc-500 transition-colors hover:bg-white/5 hover:text-[#00D6C9]">← Back to store</Link></div>
-  </aside>
-  <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-2 border-b border-white/10 bg-[#08111f] px-3 sm:h-16 sm:px-4 lg:hidden"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#168BFF] to-[#00D6C9] text-[#071321]"><ShoppingBag className="h-5 w-5"/></div><div className="leading-tight"><p className="text-sm font-black tracking-wider text-white">MOMIA STOR</p><p className="text-[11px] text-zinc-400">Admin</p></div><div className="ml-auto"><SignOutButton compact/></div></div>
-  <nav className="fixed inset-x-0 top-14 z-30 flex gap-1.5 overflow-x-auto border-b border-white/10 bg-[#08111f] px-2.5 py-2 sm:top-16 sm:px-3 lg:hidden scrollbar-hide overscroll-x-contain">{NAV_ITEMS.map(item=>{const active=item.exact?pathname===item.href:pathname?.startsWith(item.href);return <Link key={item.href} href={item.href} className={cn("flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-medium transition-colors",active?"bg-[#168BFF] text-white":"text-zinc-400 hover:bg-white/5 hover:text-white")}><item.icon className="h-3.5 w-3.5"/>{item.label}</Link>})}</nav>
-  <main className="min-w-0 flex-1 lg:pl-64"><div className="mx-auto w-full max-w-6xl min-w-0 px-3 pb-8 pt-24 sm:px-6 lg:py-8 lg:px-8">{children}</div></main>
- </div>;
+  const pathname = usePathname();
+  return <div className="min-h-screen bg-[#0B1424] text-zinc-100">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/10 bg-[#08111f] lg:flex">
+      <div className="flex h-20 items-center gap-3 border-b border-white/10 px-5">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#168BFF] to-[#00D6C9] text-[#071321]"><ShoppingBag className="h-6 w-6" /></div>
+        <div><p className="text-base font-black tracking-wider text-white">MOMIA STOR</p><p className="text-xs text-zinc-500">Store control center</p></div>
+      </div>
+      <nav className="flex-1 space-y-2 p-4">{NAV_ITEMS.map(item => {
+        const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+        const Icon = item.icon;
+        return <Link key={item.href} href={item.href} className={cn("flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition", active ? "bg-[#168BFF] text-white shadow-lg shadow-blue-500/20" : "text-zinc-400 hover:bg-white/5 hover:text-white")}><Icon className="h-5 w-5" />{item.label}</Link>;
+      })}</nav>
+      <div className="space-y-2 border-t border-white/10 p-4"><SignOutButton /><Link href="/ar" className="flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm text-zinc-400 hover:bg-white/5 hover:text-[#00D6C9]"><Store className="h-4 w-4" /> View store</Link></div>
+    </aside>
+    <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center gap-3 border-b border-white/10 bg-[#08111f]/95 px-4 backdrop-blur lg:hidden">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#168BFF] to-[#00D6C9] text-[#071321]"><ShoppingBag className="h-5 w-5" /></div>
+      <div><p className="text-sm font-black tracking-wider">MOMIA STOR</p><p className="text-[11px] text-zinc-500">Admin panel</p></div>
+      <div className="ml-auto"><SignOutButton compact /></div>
+    </header>
+    <nav className="fixed inset-x-0 top-16 z-30 flex gap-2 overflow-x-auto border-b border-white/10 bg-[#08111f] px-3 py-2.5 lg:hidden">{NAV_ITEMS.map(item => {
+      const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+      const Icon = item.icon;
+      return <Link key={item.href} href={item.href} className={cn("flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold", active ? "bg-[#168BFF] text-white" : "text-zinc-400 hover:bg-white/5")}><Icon className="h-4 w-4" />{item.label}</Link>;
+    })}</nav>
+    <main className="min-w-0 lg:pl-64"><div className="mx-auto w-full max-w-7xl min-w-0 px-3 pb-10 pt-32 sm:px-6 lg:px-8 lg:py-8">{children}</div></main>
+  </div>;
 }
