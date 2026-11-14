@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS = {
     favicon: "/momia-mark.svg",
     hero_image: "/momia-mark.svg",
   },
-  contact: { phone: "", whatsapp: "", email: "", instagram: "", facebook: "", tiktok: "", maps_url: "", address: "Morocco" },
+  contact: { phone: "", whatsapp: "212659785764", email: "", instagram: "", facebook: "", tiktok: "", maps_url: "", address: "Morocco" },
   hours: { weekdays: "Always online", weekends: "Always online" },
   seo: { title: "MOMIA STOR — Your Digital Partner", description: SITE_DESCRIPTION, keywords: "social media, followers, likes, gaming top up, Free Fire, digital services", og_image: "/momia-mark.svg" },
   design: { primary_color: "#168BFF" },
@@ -25,8 +25,8 @@ export const NAV_ITEMS = [
   { label: "Services", href: "/#services" },
   { label: "How it works", href: "/#how" },
 ] as const;
-export const PHONE = "";
-export const WHATSAPP_NUMBER = "";
+export const PHONE = "0659785764";
+export const WHATSAPP_NUMBER = "212659785764";
 export const INSTAGRAM_URL = "";
 export const GOOGLE_MAPS_URL = "";
 export const ADDRESS = "Morocco";
