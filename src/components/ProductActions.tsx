@@ -5,7 +5,6 @@ import { MessageCircle, Plus, Check, ShoppingBag } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/components/CartProvider";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
-import { fmt } from "@/lib/i18n/config";
 import { formatCurrency, buildWhatsAppHref } from "@/lib/utils";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
