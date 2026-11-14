@@ -7,6 +7,7 @@ import { useCart } from "@/components/CartProvider";
 import { useI18n } from "@/lib/i18n/LocaleProvider";
 import { fmt } from "@/lib/i18n/config";
 import { formatCurrency, buildWhatsAppHref } from "@/lib/utils";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 export function ProductActions({
   product,
@@ -19,14 +20,9 @@ export function ProductActions({
   const { dict } = useI18n();
   const available = product.is_available;
 
-  const whatsappHref = buildWhatsAppHref(
-    whatsappNumber,
-    fmt(dict.whatsapp.order, {
-      name: product.name,
-      price: formatCurrency(Number(product.price ?? 0)),
-      status: available ? dict.menuPage.available : dict.menuPage.notAvailable,
-    })
-  );
+  const targetWhatsApp = whatsappNumber || WHATSAPP_NUMBER;
+  const whatsappMessage = `Salam MOMIA STOR!\n\nBghit nطلب هاد الخدمة/المنتج: ${product.name}\nPrice: ${formatCurrency(Number(product.price ?? 0))}\n\nPlease confirm availability and delivery details.`;
+  const whatsappHref = buildWhatsAppHref(targetWhatsApp, whatsappMessage);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
